@@ -9,10 +9,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.appcompat.widget.Toolbar;
 
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
+import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -66,6 +69,23 @@ public class ItemListActivity extends AppCompatActivity {
         View recyclerView = findViewById(R.id.item_list);
         assert recyclerView != null;
         setupRecyclerView((RecyclerView) recyclerView);
+
+
+
+        BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_nav);
+        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                Log.d("BottomNavigation", "onNavigationItemSelected: " + item.toString());
+                switch (item.getItemId()) {
+                    case R.id.stored: Log.d("BottomNavigation", "Load stored books from db plz"); break;
+                    case R.id.hot: Log.d("BottomNavigation", "Grab recent reviews from API"); break;
+                    case R.id.search: Log.d("BottomNavigation", "Pop down Search bar from top of screen"); break;
+                }
+                return true;
+            }
+        });
+
     }
 
     private void setupRecyclerView(@NonNull RecyclerView recyclerView) {
