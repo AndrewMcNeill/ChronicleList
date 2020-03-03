@@ -1,7 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <item android:title="Stored" />
-    <item android:title="Hot" />
-    <item android:title="Search" />
+    <item
+        android:id="@+id/stored"
+        android:title="Stored" />
+    <item
+        android:id="@+id/hot"
+        android:title="Hot" />
+    <item
+        android:id="@+id/search"
+        android:title="Search" />
 </menu>

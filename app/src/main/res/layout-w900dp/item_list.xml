@@ -18,7 +18,7 @@
     
     -->
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/root"
+        android:id="@+id/item_pane"
         android:layout_width="@dimen/item_width"
         android:layout_height="match_parent">
 
