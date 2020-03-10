@@ -5,12 +5,25 @@ public class Book {
     private String author;
     private double rating;
     private String coverUrl;
+    private String description;
+    private String apiID;
 
-    public Book(String title, String author, double rating, String coverUrl) {
+    public Book(String apiID, String title, String author, double rating, String coverUrl) {
+        this.apiID = apiID;
         this.title = title;
         this.author = author;
         this.rating = rating;
         this.coverUrl = coverUrl;
+        this.description = "";
+    }
+
+    public Book(String apiID, String title, String author, double rating, String coverUrl, String description) {
+        this.apiID = apiID;
+        this.title = title;
+        this.author = author;
+        this.rating = rating;
+        this.coverUrl = coverUrl;
+        this.description = description;
     }
 
     public String getTitle() {
@@ -43,5 +56,22 @@ public class Book {
 
     public void setCoverUrl(String coverUrl) {
         this.coverUrl = coverUrl;
+    }
+
+    public String getDescription() {
+        //TODO: If no description, grab from the API?
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getApiID() {
+        return apiID;
+    }
+
+    public void setApiID(String apiID) {
+        this.apiID = apiID;
     }
 }
