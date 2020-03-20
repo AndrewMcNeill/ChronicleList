@@ -76,16 +76,26 @@ public class ItemListActivity extends AppCompatActivity {
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                Log.d("BottomNavigation", "onNavigationItemSelected: " + item.toString());
-                switch (item.getItemId()) {
-                    case R.id.stored: Log.d("BottomNavigation", "Load stored books from db plz"); break;
-                    case R.id.hot: Log.d("BottomNavigation", "Grab recent reviews from API"); break;
-                    case R.id.search: Log.d("BottomNavigation", "Pop down Search bar from top of screen"); break;
-                }
+                navSelected(item);
                 return true;
             }
         });
 
+    }
+
+    private void navSelected(MenuItem item) {
+        Log.d("BottomNavigation", "onNavigationItemSelected: " + item.toString());
+        switch (item.getItemId()) {
+            case R.id.stored:
+                Log.d("BottomNavigation", "Load stored books from db plz");
+                break;
+            case R.id.hot:
+                Log.d("BottomNavigation", "Grab recent reviews from API");
+                break;
+            case R.id.search:
+                Log.d("BottomNavigation", "Pop down Search bar from top of screen");
+                break;
+        }
     }
 
     private void setupRecyclerView(@NonNull RecyclerView recyclerView) {
