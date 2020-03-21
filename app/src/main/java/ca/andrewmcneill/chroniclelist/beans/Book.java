@@ -1,5 +1,7 @@
 package ca.andrewmcneill.chroniclelist.beans;
 
+import androidx.annotation.NonNull;
+
 public class Book {
     private String title;
     private String author;
@@ -24,6 +26,16 @@ public class Book {
         this.rating = rating;
         this.coverUrl = coverUrl;
         this.description = description;
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        return "Title: " + title + "\n" +
+                "Author: " + author + "\n" +
+                "Rating: " + rating + "\n" +
+                "Description: " + description;
+
     }
 
     public String getTitle() {

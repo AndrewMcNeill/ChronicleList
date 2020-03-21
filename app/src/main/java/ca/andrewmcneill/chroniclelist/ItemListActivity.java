@@ -9,6 +9,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.appcompat.widget.Toolbar;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
@@ -20,7 +26,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import ca.andrewmcneill.chroniclelist.beans.Book;
 import ca.andrewmcneill.chroniclelist.dummy.DummyContent;
+import fr.arnaudguyon.xmltojsonlib.XmlToJson;
 
 import java.util.List;
 
@@ -76,16 +88,72 @@ public class ItemListActivity extends AppCompatActivity {
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                Log.d("BottomNavigation", "onNavigationItemSelected: " + item.toString());
-                switch (item.getItemId()) {
-                    case R.id.stored: Log.d("BottomNavigation", "Load stored books from db plz"); break;
-                    case R.id.hot: Log.d("BottomNavigation", "Grab recent reviews from API"); break;
-                    case R.id.search: Log.d("BottomNavigation", "Pop down Search bar from top of screen"); break;
-                }
+                navSelected(item);
                 return true;
             }
         });
 
+    }
+
+    private void navSelected(MenuItem item) {
+        Log.d("BottomNavigation", "onNavigationItemSelected: " + item.toString());
+        switch (item.getItemId()) {
+            case R.id.stored:
+                Log.d("BottomNavigation", "Load stored books from db plz");
+                break;
+            case R.id.hot:
+                hotSelected();
+                Log.d("BottomNavigation", "Grab recent reviews from API");
+                break;
+            case R.id.search:
+                Log.d("BottomNavigation", "Pop down Search bar from top of screen");
+                break;
+        }
+    }
+
+    private void hotSelected() {
+        RequestQueue queue = Volley.newRequestQueue(this);
+        String url = "https://www.goodreads.com/review/recent_reviews.xml?&key=";
+        String key = "z1Gl9wmQ9FBFQiLqMSlxA";
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, url+key,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+
+                        // Convert XML response into JSON, because XML is a cancer
+                        XmlToJson xmlToJson = new XmlToJson.Builder(response).build();
+                        JSONObject jsonObject = xmlToJson.toJson();
+                        try {
+                            JSONArray reviews = jsonObject.getJSONObject("GoodreadsResponse").getJSONObject("reviews").getJSONArray("review");
+
+                            for (int i = 0; i < reviews.length(); i++) {
+                                JSONObject jsonBook = reviews.getJSONObject(i).getJSONObject("book");
+                                Log.d("Search", jsonBook.toString());
+                                Log.d("Search", jsonBook.getJSONObject("authors").toString());
+                                Book book = new Book(
+                                        jsonBook.getString("id"),
+                                        jsonBook.getString("title"),
+                                        jsonBook.getJSONObject("authors").getJSONObject("author").getString("name"),
+                                        jsonBook.getDouble("average_rating"),
+                                        jsonBook.getString("image_url")
+                                );
+                                Log.d("Search", book.toString());
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        // Convert XML response into JSON, because XML is a cancer
+
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.d("Search", "onErrorResponse: " + "That didn't work!");
+            }
+        });
+
+// Add the request to the RequestQueue.
+        queue.add(stringRequest);
     }
 
     private void setupRecyclerView(@NonNull RecyclerView recyclerView) {
