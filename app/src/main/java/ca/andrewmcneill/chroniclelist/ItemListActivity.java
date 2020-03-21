@@ -30,6 +30,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import ca.andrewmcneill.chroniclelist.beans.Book;
 import ca.andrewmcneill.chroniclelist.dummy.DummyContent;
 import fr.arnaudguyon.xmltojsonlib.XmlToJson;
 
@@ -101,16 +102,16 @@ public class ItemListActivity extends AppCompatActivity {
                 Log.d("BottomNavigation", "Load stored books from db plz");
                 break;
             case R.id.hot:
+                hotSelected();
                 Log.d("BottomNavigation", "Grab recent reviews from API");
                 break;
             case R.id.search:
-                searchSelected();
                 Log.d("BottomNavigation", "Pop down Search bar from top of screen");
                 break;
         }
     }
 
-    private void searchSelected() {
+    private void hotSelected() {
         RequestQueue queue = Volley.newRequestQueue(this);
         String url = "https://www.goodreads.com/review/recent_reviews.xml?&key=";
         String key = "z1Gl9wmQ9FBFQiLqMSlxA";
@@ -123,17 +124,26 @@ public class ItemListActivity extends AppCompatActivity {
                         XmlToJson xmlToJson = new XmlToJson.Builder(response).build();
                         JSONObject jsonObject = xmlToJson.toJson();
                         try {
-                            Log.d("Search", jsonObject.toString(2));
                             JSONArray reviews = jsonObject.getJSONObject("GoodreadsResponse").getJSONObject("reviews").getJSONArray("review");
 
                             for (int i = 0; i < reviews.length(); i++) {
-                                Log.d("Search", reviews.getJSONObject(i).getJSONObject("book").getString("title"));
+                                JSONObject jsonBook = reviews.getJSONObject(i).getJSONObject("book");
+                                Log.d("Search", jsonBook.toString());
+                                Log.d("Search", jsonBook.getJSONObject("authors").toString());
+                                Book book = new Book(
+                                        jsonBook.getString("id"),
+                                        jsonBook.getString("title"),
+                                        jsonBook.getJSONObject("authors").getJSONObject("author").getString("name"),
+                                        jsonBook.getDouble("average_rating"),
+                                        jsonBook.getString("image_url")
+                                );
+                                Log.d("Search", book.toString());
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
                         // Convert XML response into JSON, because XML is a cancer
-                        
+
                     }
                 }, new Response.ErrorListener() {
             @Override
