@@ -9,6 +9,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.appcompat.widget.Toolbar;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
@@ -20,7 +26,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import ca.andrewmcneill.chroniclelist.dummy.DummyContent;
+import fr.arnaudguyon.xmltojsonlib.XmlToJson;
 
 import java.util.List;
 
@@ -93,9 +104,46 @@ public class ItemListActivity extends AppCompatActivity {
                 Log.d("BottomNavigation", "Grab recent reviews from API");
                 break;
             case R.id.search:
+                searchSelected();
                 Log.d("BottomNavigation", "Pop down Search bar from top of screen");
                 break;
         }
+    }
+
+    private void searchSelected() {
+        RequestQueue queue = Volley.newRequestQueue(this);
+        String url = "https://www.goodreads.com/review/recent_reviews.xml?&key=";
+        String key = "z1Gl9wmQ9FBFQiLqMSlxA";
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, url+key,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+
+                        // Convert XML response into JSON, because XML is a cancer
+                        XmlToJson xmlToJson = new XmlToJson.Builder(response).build();
+                        JSONObject jsonObject = xmlToJson.toJson();
+                        try {
+                            Log.d("Search", jsonObject.toString(2));
+                            JSONArray reviews = jsonObject.getJSONObject("GoodreadsResponse").getJSONObject("reviews").getJSONArray("review");
+
+                            for (int i = 0; i < reviews.length(); i++) {
+                                Log.d("Search", reviews.getJSONObject(i).getJSONObject("book").getString("title"));
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        // Convert XML response into JSON, because XML is a cancer
+                        
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.d("Search", "onErrorResponse: " + "That didn't work!");
+            }
+        });
+
+// Add the request to the RequestQueue.
+        queue.add(stringRequest);
     }
 
     private void setupRecyclerView(@NonNull RecyclerView recyclerView) {
