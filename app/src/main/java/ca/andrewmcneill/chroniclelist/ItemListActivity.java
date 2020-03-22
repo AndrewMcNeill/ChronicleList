@@ -41,6 +41,8 @@ import ca.andrewmcneill.chroniclelist.dummy.DummyContent;
 import fr.arnaudguyon.xmltojsonlib.XmlToJson;
 
 import java.util.ArrayList;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.List;
 
 /**
@@ -151,8 +153,8 @@ public class ItemListActivity extends AppCompatActivity  {
                             ArrayList<Book> books = new ArrayList<>();
                             for (int i = 0; i < reviews.length(); i++) {
                                 JSONObject jsonBook = reviews.getJSONObject(i).getJSONObject("book");
-                                Log.d("Search", jsonBook.toString());
-                                Log.d("Search", jsonBook.getJSONObject("authors").toString());
+                                Log.d("Hot", jsonBook.toString());
+                                Log.d("Hot", jsonBook.getJSONObject("authors").toString());
                                 Book book = new Book(
                                         jsonBook.getString("id"),
                                         jsonBook.getString("title"),
@@ -164,7 +166,7 @@ public class ItemListActivity extends AppCompatActivity  {
                                 Log.d("Search", book.toString());
                             }
 
-                            customAdapter.refresh(books);
+                            customAdapter.refresh(books); // refresh data in view
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -203,7 +205,57 @@ public class ItemListActivity extends AppCompatActivity  {
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(searchBar.getWindowToken(), InputMethodManager.HIDE_IMPLICIT_ONLY);
         Log.d("Search", searchBar.getText().toString());
-        Log.d("Search", "Now use this to search the API");
+        String searchText = "";
+        try {
+            searchText = URLEncoder.encode(searchBar.getText().toString(), "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+
+        RequestQueue queue = Volley.newRequestQueue(this);
+
+        String url = "https://www.goodreads.com/search/index.xml?q=";
+        String key = "&key=z1Gl9wmQ9FBFQiLqMSlxA";
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, url+searchText+key,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        // Convert XML response into JSON, because XML is a cancer
+                        XmlToJson xmlToJson = new XmlToJson.Builder(response).build();
+                        JSONObject jsonObject = xmlToJson.toJson();
+                        try {
+                            JSONArray works = jsonObject.getJSONObject("GoodreadsResponse").getJSONObject("search").getJSONObject("results").getJSONArray("work");
+                            ArrayList<Book> books = new ArrayList<>();
+                            Log.d("Search", ""+works.length());
+                            for (int i = 0; i < works.length(); i++) {
+                                JSONObject work = works.getJSONObject(i);
+                                JSONObject jsonBook = work.getJSONObject("best_book");
+                                Book book = new Book(
+                                        jsonBook.getString("id"),
+                                        jsonBook.getString("title"),
+                                        jsonBook.getJSONObject("author").getString("name"),
+                                        work.getDouble("average_rating"),
+                                        jsonBook.getString("image_url")
+                                );
+                                Log.d("Search", book.getTitle());
+                                books.add(book);
+                            }
+                            customAdapter.refresh(books);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        // Convert XML response into JSON, because XML is a cancer
+
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.d("Search", "onErrorResponse: " + "That didn't work!");
+            }
+        });
+
+// Add the request to the RequestQueue.
+        queue.add(stringRequest);
     }
 
     /*
