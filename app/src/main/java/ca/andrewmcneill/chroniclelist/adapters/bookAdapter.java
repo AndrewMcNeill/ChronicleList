@@ -12,6 +12,8 @@ import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.squareup.picasso.Picasso;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -73,6 +75,7 @@ public class bookAdapter extends RecyclerView.Adapter<bookAdapter.ViewHolder> {
         holder.bookTitle.setText(books.get(position).getTitle());
         holder.bookAuthor.setText(books.get(position).getAuthor());
         holder.bookRating.setText(Double.toString(books.get(position).getRating()));
+        Picasso.get().load(books.get(position).getCoverUrl()).into(holder.bookCoverImage);
         holder.itemView.setTag(books.get(position));
         holder.itemView.setOnClickListener(mOnClickListener);
     }
@@ -81,6 +84,7 @@ public class bookAdapter extends RecyclerView.Adapter<bookAdapter.ViewHolder> {
     public int getItemCount() {
         return books.size();
     }
+
 
     public void refresh(ArrayList<Book> newBooks)
     {
