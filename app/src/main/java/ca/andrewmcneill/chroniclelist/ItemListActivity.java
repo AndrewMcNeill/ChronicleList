@@ -6,6 +6,7 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.appcompat.widget.Toolbar;
 
@@ -30,10 +31,12 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import ca.andrewmcneill.chroniclelist.adapters.bookAdapter;
 import ca.andrewmcneill.chroniclelist.beans.Book;
 import ca.andrewmcneill.chroniclelist.dummy.DummyContent;
 import fr.arnaudguyon.xmltojsonlib.XmlToJson;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -51,6 +54,9 @@ public class ItemListActivity extends AppCompatActivity {
      * device.
      */
     private boolean mTwoPane;
+
+    /** CHANGE THIS LATER MAYBE **/
+    bookAdapter customAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,8 +86,8 @@ public class ItemListActivity extends AppCompatActivity {
 
         View recyclerView = findViewById(R.id.item_list);
         assert recyclerView != null;
-        setupRecyclerView((RecyclerView) recyclerView);
-
+        customAdapter = new bookAdapter(this, new ArrayList<Book>(), mTwoPane);
+        setupRecyclerView((RecyclerView) recyclerView, customAdapter);
 
 
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_nav);
@@ -125,7 +131,7 @@ public class ItemListActivity extends AppCompatActivity {
                         JSONObject jsonObject = xmlToJson.toJson();
                         try {
                             JSONArray reviews = jsonObject.getJSONObject("GoodreadsResponse").getJSONObject("reviews").getJSONArray("review");
-
+                            ArrayList<Book> books = new ArrayList<>();
                             for (int i = 0; i < reviews.length(); i++) {
                                 JSONObject jsonBook = reviews.getJSONObject(i).getJSONObject("book");
                                 Log.d("Search", jsonBook.toString());
@@ -137,8 +143,12 @@ public class ItemListActivity extends AppCompatActivity {
                                         jsonBook.getDouble("average_rating"),
                                         jsonBook.getString("image_url")
                                 );
+                                books.add(book);
                                 Log.d("Search", book.toString());
                             }
+
+                            // Really need to separate this out
+                            customAdapter.refresh(books);
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -152,80 +162,18 @@ public class ItemListActivity extends AppCompatActivity {
             }
         });
 
-// Add the request to the RequestQueue.
+    // Add the request to the RequestQueue.
         queue.add(stringRequest);
     }
 
-    private void setupRecyclerView(@NonNull RecyclerView recyclerView) {
-        recyclerView.setAdapter(new SimpleItemRecyclerViewAdapter(this, DummyContent.ITEMS, mTwoPane));
+    /** going to have to figure this out, since we will need some sort of adapter depending on the screen we are on **/
+    private void setupRecyclerView(@NonNull RecyclerView recyclerView, RecyclerView.Adapter adapter) {
+        recyclerView.setAdapter(adapter);
     }
 
-    public static class SimpleItemRecyclerViewAdapter
-            extends RecyclerView.Adapter<SimpleItemRecyclerViewAdapter.ViewHolder> {
-
-        private final ItemListActivity mParentActivity;
-        private final List<DummyContent.DummyItem> mValues;
-        private final boolean mTwoPane;
-        private final View.OnClickListener mOnClickListener = new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                DummyContent.DummyItem item = (DummyContent.DummyItem) view.getTag();
-                if (mTwoPane) {
-                    Bundle arguments = new Bundle();
-                    arguments.putString(ItemDetailFragment.ARG_ITEM_ID, item.id);
-                    ItemDetailFragment fragment = new ItemDetailFragment();
-                    fragment.setArguments(arguments);
-                    mParentActivity.getSupportFragmentManager().beginTransaction()
-                            .replace(R.id.item_detail_container, fragment)
-                            .commit();
-                } else {
-                    Context context = view.getContext();
-                    Intent intent = new Intent(context, ItemDetailActivity.class);
-                    intent.putExtra(ItemDetailFragment.ARG_ITEM_ID, item.id);
-
-                    context.startActivity(intent);
-                }
-            }
-        };
-
-        SimpleItemRecyclerViewAdapter(ItemListActivity parent,
-                                      List<DummyContent.DummyItem> items,
-                                      boolean twoPane) {
-            mValues = items;
-            mParentActivity = parent;
-            mTwoPane = twoPane;
-        }
-
-        @Override
-        public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View view = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.custom_item_list_content, parent, false);
-            return new ViewHolder(view);
-        }
-
-        @Override
-        public void onBindViewHolder(final ViewHolder holder, int position) {
-            holder.mIdView.setText(mValues.get(position).id);
-            holder.mContentView.setText(mValues.get(position).content);
-
-            holder.itemView.setTag(mValues.get(position));
-            holder.itemView.setOnClickListener(mOnClickListener);
-        }
-
-        @Override
-        public int getItemCount() {
-            return mValues.size();
-        }
-
-        class ViewHolder extends RecyclerView.ViewHolder {
-            final TextView mIdView;
-            final TextView mContentView;
-
-            ViewHolder(View view) {
-                super(view);
-                mIdView = (TextView) view.findViewById(R.id.id_text);
-                mContentView = (TextView) view.findViewById(R.id.content);
-            }
-        }
+    /*
+    private RecyclerView.Adapter makeNewBookAdapter(ArrayList<Book> books) {
+        return new bookAdapter(this, books, mTwoPane);
     }
+*/
 }

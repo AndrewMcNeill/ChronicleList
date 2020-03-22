@@ -28,7 +28,7 @@
     </androidx.cardview.widget.CardView>
 
     <ImageView
-        android:id="@+id/imageView"
+        android:id="@+id/bookCoverImage"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
@@ -43,33 +43,39 @@
         app:srcCompat="@mipmap/ic_launcher" />
 
     <TextView
-        android:id="@+id/id_text"
-        android:layout_width="wrap_content"
+        android:id="@+id/bookTitleText"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
         android:elevation="7dp"
+        android:ellipsize="end"
+        android:singleLine="true"
         android:text="Title"
         android:textSize="18sp"
         app:layout_constraintBottom_toBottomOf="@+id/cardView"
         app:layout_constraintEnd_toEndOf="@+id/cardView"
         app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toEndOf="@+id/imageView"
+        app:layout_constraintStart_toEndOf="@+id/bookCoverImage"
         app:layout_constraintTop_toTopOf="@+id/cardView"
         app:layout_constraintVertical_bias="0.0" />
 
     <TextView
-        android:id="@+id/content"
-        android:layout_width="wrap_content"
+        android:id="@+id/bookAuthor"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
+        android:layout_marginEnd="8dp"
         android:elevation="7dp"
-        android:text="Content"
+        android:ellipsize="end"
+        android:singleLine="true"
+        android:text="Author"
         app:layout_constraintBottom_toBottomOf="@+id/cardView"
         app:layout_constraintEnd_toEndOf="@+id/cardView"
         app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toEndOf="@+id/imageView"
-        app:layout_constraintTop_toBottomOf="@+id/id_text"
+        app:layout_constraintStart_toEndOf="@+id/bookCoverImage"
+        app:layout_constraintTop_toBottomOf="@+id/bookTitleText"
         app:layout_constraintVertical_bias="0.0" />
 
     <ImageView
@@ -81,12 +87,12 @@
         app:layout_constraintBottom_toBottomOf="@+id/cardView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toEndOf="@+id/textView5"
-        app:layout_constraintTop_toBottomOf="@+id/content"
+        app:layout_constraintStart_toEndOf="@+id/bookRating"
+        app:layout_constraintTop_toBottomOf="@+id/bookAuthor"
         app:srcCompat="@drawable/ic_star_black_24dp" />
 
     <TextView
-        android:id="@+id/textView5"
+        android:id="@+id/bookRating"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
@@ -99,6 +105,6 @@
         app:layout_constraintBottom_toBottomOf="@+id/cardView"
         app:layout_constraintEnd_toEndOf="@+id/cardView"
         app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toEndOf="@+id/imageView"
-        app:layout_constraintTop_toBottomOf="@+id/content" />
+        app:layout_constraintStart_toEndOf="@+id/bookCoverImage"
+        app:layout_constraintTop_toBottomOf="@+id/bookAuthor" />
 </androidx.constraintlayout.widget.ConstraintLayout>
