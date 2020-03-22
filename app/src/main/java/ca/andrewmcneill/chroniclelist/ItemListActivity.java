@@ -20,10 +20,14 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import org.json.JSONArray;
@@ -51,6 +55,7 @@ public class ItemListActivity extends AppCompatActivity {
      * device.
      */
     private boolean mTwoPane;
+    private EditText searchBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,6 +74,7 @@ public class ItemListActivity extends AppCompatActivity {
                         .setAction("Action", null).show();
             }
         });
+        fab.hide();
 
         if (findViewById(R.id.item_detail_container) != null) {
             // The detail container view will be present only in the
@@ -93,6 +99,18 @@ public class ItemListActivity extends AppCompatActivity {
             }
         });
 
+        searchBar = findViewById(R.id.searchBar);
+        searchBar.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView textView, int actionID, KeyEvent keyEvent) {
+                if (actionID == EditorInfo.IME_ACTION_DONE) {
+                    searchDone();
+                    return true;
+                }
+                return false;
+            }
+        });
+
     }
 
     private void navSelected(MenuItem item) {
@@ -103,10 +121,9 @@ public class ItemListActivity extends AppCompatActivity {
                 break;
             case R.id.hot:
                 hotSelected();
-                Log.d("BottomNavigation", "Grab recent reviews from API");
                 break;
             case R.id.search:
-                Log.d("BottomNavigation", "Pop down Search bar from top of screen");
+                searchSelected();
                 break;
         }
     }
@@ -154,6 +171,25 @@ public class ItemListActivity extends AppCompatActivity {
 
 // Add the request to the RequestQueue.
         queue.add(stringRequest);
+    }
+
+    private void searchSelected() {
+        if (searchBar.getVisibility() == View.GONE) {
+            searchBar.setVisibility(View.VISIBLE);
+            searchBar.requestFocus();
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.showSoftInput(searchBar, InputMethodManager.SHOW_IMPLICIT);
+        }
+        else
+            searchDone();
+    }
+
+    private void searchDone() {
+        searchBar.setVisibility(View.GONE);
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(searchBar.getWindowToken(), InputMethodManager.HIDE_IMPLICIT_ONLY);
+        Log.d("Search", searchBar.getText().toString());
+        Log.d("Search", "Now use this to search the API");
     }
 
     private void setupRecyclerView(@NonNull RecyclerView recyclerView) {
