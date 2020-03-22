@@ -31,9 +31,7 @@ public class ItemDetailFragment extends Fragment {
     /**
      * The dummy content this fragment is presenting.
      */
-    //private Book mItem;
-    String title;
-    String apiID;
+    private String apiID;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
