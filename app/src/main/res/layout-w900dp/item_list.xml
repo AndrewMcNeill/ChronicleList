@@ -35,7 +35,7 @@
             android:singleLine="true"
             android:text=""
             android:visibility="gone"
-            android:imeOptions="flagNoFullscreen"
+            android:imeOptions="actionSearch"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
