@@ -1,7 +1,6 @@
 package ca.andrewmcneill.chroniclelist;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -21,10 +20,8 @@ import com.google.android.material.snackbar.Snackbar;
 
 import android.util.Log;
 import android.view.KeyEvent;
-import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
@@ -34,13 +31,13 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import ca.andrewmcneill.chroniclelist.adapters.BookAdapter;
 import ca.andrewmcneill.chroniclelist.beans.Book;
-import ca.andrewmcneill.chroniclelist.dummy.DummyContent;
 import fr.arnaudguyon.xmltojsonlib.XmlToJson;
 
+import java.util.ArrayList;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.util.List;
 
 /**
  * An activity representing a list of Items. This activity
@@ -50,7 +47,7 @@ import java.util.List;
  * item details. On tablets, the activity presents the list of items and
  * item details side-by-side using two vertical panes.
  */
-public class ItemListActivity extends AppCompatActivity {
+public class ItemListActivity extends AppCompatActivity  {
 
     /**
      * Whether or not the activity is in two-pane mode, i.e. running on a tablet
@@ -58,6 +55,7 @@ public class ItemListActivity extends AppCompatActivity {
      */
     private boolean mTwoPane;
     private EditText searchBar;
+    private BookAdapter customAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,8 +86,8 @@ public class ItemListActivity extends AppCompatActivity {
 
         View recyclerView = findViewById(R.id.item_list);
         assert recyclerView != null;
-        setupRecyclerView((RecyclerView) recyclerView);
-
+        customAdapter = new BookAdapter(this, new ArrayList<Book>(), mTwoPane);
+        setupRecyclerView((RecyclerView) recyclerView, customAdapter);
 
 
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_nav);
@@ -144,7 +142,7 @@ public class ItemListActivity extends AppCompatActivity {
                         JSONObject jsonObject = xmlToJson.toJson();
                         try {
                             JSONArray reviews = jsonObject.getJSONObject("GoodreadsResponse").getJSONObject("reviews").getJSONArray("review");
-
+                            ArrayList<Book> books = new ArrayList<>();
                             for (int i = 0; i < reviews.length(); i++) {
                                 JSONObject jsonBook = reviews.getJSONObject(i).getJSONObject("book");
                                 Log.d("Hot", jsonBook.toString());
@@ -156,8 +154,11 @@ public class ItemListActivity extends AppCompatActivity {
                                         jsonBook.getDouble("average_rating"),
                                         jsonBook.getString("image_url")
                                 );
+                                books.add(book);
                                 Log.d("Search", book.toString());
                             }
+
+                            customAdapter.refresh(books); // refresh data in view
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -171,8 +172,12 @@ public class ItemListActivity extends AppCompatActivity {
             }
         });
 
-// Add the request to the RequestQueue.
+    // Add the request to the RequestQueue.
         queue.add(stringRequest);
+    }
+
+    private void setupRecyclerView(@NonNull RecyclerView recyclerView, RecyclerView.Adapter adapter) {
+        recyclerView.setAdapter(adapter);
     }
 
     private void searchSelected() {
@@ -211,6 +216,7 @@ public class ItemListActivity extends AppCompatActivity {
                         JSONObject jsonObject = xmlToJson.toJson();
                         try {
                             JSONArray works = jsonObject.getJSONObject("GoodreadsResponse").getJSONObject("search").getJSONObject("results").getJSONArray("work");
+                            ArrayList<Book> books = new ArrayList<>();
                             Log.d("Search", ""+works.length());
                             for (int i = 0; i < works.length(); i++) {
                                 JSONObject work = works.getJSONObject(i);
@@ -223,7 +229,9 @@ public class ItemListActivity extends AppCompatActivity {
                                         jsonBook.getString("image_url")
                                 );
                                 Log.d("Search", book.getTitle());
+                                books.add(book);
                             }
+                            customAdapter.refresh(books);
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -241,76 +249,4 @@ public class ItemListActivity extends AppCompatActivity {
         queue.add(stringRequest);
     }
 
-    private void setupRecyclerView(@NonNull RecyclerView recyclerView) {
-        recyclerView.setAdapter(new SimpleItemRecyclerViewAdapter(this, DummyContent.ITEMS, mTwoPane));
-    }
-
-    public static class SimpleItemRecyclerViewAdapter
-            extends RecyclerView.Adapter<SimpleItemRecyclerViewAdapter.ViewHolder> {
-
-        private final ItemListActivity mParentActivity;
-        private final List<DummyContent.DummyItem> mValues;
-        private final boolean mTwoPane;
-        private final View.OnClickListener mOnClickListener = new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                DummyContent.DummyItem item = (DummyContent.DummyItem) view.getTag();
-                if (mTwoPane) {
-                    Bundle arguments = new Bundle();
-                    arguments.putString(ItemDetailFragment.ARG_ITEM_ID, item.id);
-                    ItemDetailFragment fragment = new ItemDetailFragment();
-                    fragment.setArguments(arguments);
-                    mParentActivity.getSupportFragmentManager().beginTransaction()
-                            .replace(R.id.item_detail_container, fragment)
-                            .commit();
-                } else {
-                    Context context = view.getContext();
-                    Intent intent = new Intent(context, ItemDetailActivity.class);
-                    intent.putExtra(ItemDetailFragment.ARG_ITEM_ID, item.id);
-
-                    context.startActivity(intent);
-                }
-            }
-        };
-
-        SimpleItemRecyclerViewAdapter(ItemListActivity parent,
-                                      List<DummyContent.DummyItem> items,
-                                      boolean twoPane) {
-            mValues = items;
-            mParentActivity = parent;
-            mTwoPane = twoPane;
-        }
-
-        @Override
-        public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View view = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.custom_item_list_content, parent, false);
-            return new ViewHolder(view);
-        }
-
-        @Override
-        public void onBindViewHolder(final ViewHolder holder, int position) {
-            holder.mIdView.setText(mValues.get(position).id);
-            holder.mContentView.setText(mValues.get(position).content);
-
-            holder.itemView.setTag(mValues.get(position));
-            holder.itemView.setOnClickListener(mOnClickListener);
-        }
-
-        @Override
-        public int getItemCount() {
-            return mValues.size();
-        }
-
-        class ViewHolder extends RecyclerView.ViewHolder {
-            final TextView mIdView;
-            final TextView mContentView;
-
-            ViewHolder(View view) {
-                super(view);
-                mIdView = (TextView) view.findViewById(R.id.id_text);
-                mContentView = (TextView) view.findViewById(R.id.content);
-            }
-        }
-    }
 }
