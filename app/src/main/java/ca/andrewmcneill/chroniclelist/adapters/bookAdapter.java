@@ -3,7 +3,6 @@ package ca.andrewmcneill.chroniclelist.adapters;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,7 +21,6 @@ import ca.andrewmcneill.chroniclelist.ItemDetailFragment;
 import ca.andrewmcneill.chroniclelist.ItemListActivity;
 import ca.andrewmcneill.chroniclelist.R;
 import ca.andrewmcneill.chroniclelist.beans.Book;
-import ca.andrewmcneill.chroniclelist.dummy.DummyContent;
 
 //Externalize Recycler View Adapter from fragment
 
@@ -35,11 +33,11 @@ public class bookAdapter extends RecyclerView.Adapter<bookAdapter.ViewHolder> {
     private final View.OnClickListener mOnClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-            // this stuff is still very confusing, really need to figure this out
-            Book book = (Book) view.getTag(); //cast the selected itemView into a book??????
+            Book book = (Book) view.getTag(); // get the book obj from whatever is selected, pass apiID to detail view
             if (mTwoPane) {
                 Bundle arguments = new Bundle();
                 arguments.putString(ItemDetailFragment.API_ID, book.getApiID());
+                arguments.putBoolean(ItemDetailFragment.TWO_PANE, mTwoPane);
                 ItemDetailFragment fragment = new ItemDetailFragment();
                 fragment.setArguments(arguments);
                 mParentActivity.getSupportFragmentManager().beginTransaction()
@@ -49,7 +47,7 @@ public class bookAdapter extends RecyclerView.Adapter<bookAdapter.ViewHolder> {
                 Context context = view.getContext();
                 Intent intent = new Intent(context, ItemDetailActivity.class);
                 intent.putExtra(ItemDetailFragment.API_ID, book.getApiID());
-
+                intent.putExtra(ItemDetailFragment.TWO_PANE, mTwoPane);
                 context.startActivity(intent);
             }
         }
@@ -91,10 +89,8 @@ public class bookAdapter extends RecyclerView.Adapter<bookAdapter.ViewHolder> {
         books.clear();
         books.addAll(newBooks);
         notifyDataSetChanged();
-        Log.d("Adapter", "I got new Data");
     }
 
-    //TODO: Modify ViewHolder, Setup Picasso API to fetch and load book cover images
     class ViewHolder extends RecyclerView.ViewHolder {
         final TextView bookTitle;
         final TextView bookAuthor;

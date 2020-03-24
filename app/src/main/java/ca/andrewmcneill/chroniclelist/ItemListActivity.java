@@ -37,13 +37,11 @@ import org.json.JSONObject;
 
 import ca.andrewmcneill.chroniclelist.adapters.bookAdapter;
 import ca.andrewmcneill.chroniclelist.beans.Book;
-import ca.andrewmcneill.chroniclelist.dummy.DummyContent;
 import fr.arnaudguyon.xmltojsonlib.XmlToJson;
 
 import java.util.ArrayList;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.util.List;
 
 /**
  * An activity representing a list of Items. This activity
@@ -61,9 +59,7 @@ public class ItemListActivity extends AppCompatActivity  {
      */
     private boolean mTwoPane;
     private EditText searchBar;
-
-    /** CHANGE THIS LATER MAYBE **/
-    bookAdapter customAdapter;
+    private bookAdapter customAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -184,7 +180,6 @@ public class ItemListActivity extends AppCompatActivity  {
         queue.add(stringRequest);
     }
 
-    /** going to have to figure this out, since we will need some sort of adapter depending on the screen we are on **/
     private void setupRecyclerView(@NonNull RecyclerView recyclerView, RecyclerView.Adapter adapter) {
         recyclerView.setAdapter(adapter);
     }
@@ -258,9 +253,4 @@ public class ItemListActivity extends AppCompatActivity  {
         queue.add(stringRequest);
     }
 
-    /*
-    private RecyclerView.Adapter makeNewBookAdapter(ArrayList<Book> books) {
-        return new bookAdapter(this, books, mTwoPane);
-    }
-*/
 }
