@@ -1,12 +1,10 @@
 package ca.andrewmcneill.chroniclelist;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.appcompat.widget.Toolbar;
 
@@ -22,10 +20,8 @@ import com.google.android.material.snackbar.Snackbar;
 
 import android.util.Log;
 import android.view.KeyEvent;
-import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
@@ -35,7 +31,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import ca.andrewmcneill.chroniclelist.adapters.bookAdapter;
+import ca.andrewmcneill.chroniclelist.adapters.BookAdapter;
 import ca.andrewmcneill.chroniclelist.beans.Book;
 import fr.arnaudguyon.xmltojsonlib.XmlToJson;
 
@@ -59,7 +55,7 @@ public class ItemListActivity extends AppCompatActivity  {
      */
     private boolean mTwoPane;
     private EditText searchBar;
-    private bookAdapter customAdapter;
+    private BookAdapter customAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,7 +86,7 @@ public class ItemListActivity extends AppCompatActivity  {
 
         View recyclerView = findViewById(R.id.item_list);
         assert recyclerView != null;
-        customAdapter = new bookAdapter(this, new ArrayList<Book>(), mTwoPane);
+        customAdapter = new BookAdapter(this, new ArrayList<Book>(), mTwoPane);
         setupRecyclerView((RecyclerView) recyclerView, customAdapter);
 
 

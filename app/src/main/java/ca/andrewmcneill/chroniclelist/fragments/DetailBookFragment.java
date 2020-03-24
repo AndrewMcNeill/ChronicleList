@@ -18,10 +18,10 @@ import ca.andrewmcneill.chroniclelist.beans.Book;
 
 /**
  * A simple {@link Fragment} subclass.
- * Use the {@link detailBookFragment#newInstance} factory method to
+ * Use the {@link DetailBookFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class detailBookFragment extends Fragment {
+public class DetailBookFragment extends Fragment {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String BOOK_TITLE = "arg_title";
@@ -40,7 +40,7 @@ public class detailBookFragment extends Fragment {
     private boolean twoPane;
 
 
-    public detailBookFragment() {
+    public DetailBookFragment() {
         // Required empty public constructor
     }
 
@@ -49,11 +49,11 @@ public class detailBookFragment extends Fragment {
      *
      * @param book the book object in which you want to create the details fragment
      * @param twoPane boolean value which determines the layout used (tablet / phone)
-     * @return A new instance of fragment detailBookFragment.
+     * @return A new instance of fragment DetailBookFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static detailBookFragment newInstance(Book book, boolean twoPane) {
-        detailBookFragment fragment = new detailBookFragment();
+    public static DetailBookFragment newInstance(Book book, boolean twoPane) {
+        DetailBookFragment fragment = new DetailBookFragment();
         Bundle args = new Bundle();
         args.putString(BOOK_TITLE, book.getTitle());
         args.putString(BOOK_AUTHOR, book.getAuthor());

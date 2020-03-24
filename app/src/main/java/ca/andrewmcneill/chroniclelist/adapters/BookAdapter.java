@@ -24,7 +24,7 @@ import ca.andrewmcneill.chroniclelist.beans.Book;
 
 //Externalize Recycler View Adapter from fragment
 
-public class bookAdapter extends RecyclerView.Adapter<bookAdapter.ViewHolder> {
+public class BookAdapter extends RecyclerView.Adapter<BookAdapter.ViewHolder> {
 
     private final ItemListActivity mParentActivity;
     private final List<Book> books;
@@ -53,7 +53,7 @@ public class bookAdapter extends RecyclerView.Adapter<bookAdapter.ViewHolder> {
         }
     };
 
-    public bookAdapter(ItemListActivity parent,
+    public BookAdapter(ItemListActivity parent,
                        List<Book> books,
                        boolean twoPane) {
         this.books = books;

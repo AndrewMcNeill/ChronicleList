@@ -5,17 +5,17 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 
 import java.util.ArrayList;
-import ca.andrewmcneill.chroniclelist.fragments.detailBookFragment;
+import ca.andrewmcneill.chroniclelist.fragments.DetailBookFragment;
 
-public class ViewPagerAdapter extends FragmentPagerAdapter {
+public class SeriesPagerAdapter extends FragmentPagerAdapter {
 
-    private ArrayList<detailBookFragment> bookFragments = new ArrayList<>();
+    private ArrayList<DetailBookFragment> bookFragments = new ArrayList<>();
 
-    public ViewPagerAdapter(@NonNull FragmentManager fm) {
+    public SeriesPagerAdapter(@NonNull FragmentManager fm) {
         super(fm);
     }
 
-    public void addFragmentsToViewPager(ArrayList<detailBookFragment> fragments) {
+    public void addFragmentsToViewPager(ArrayList<DetailBookFragment> fragments) {
         bookFragments.clear();
         bookFragments.addAll(fragments);
         notifyDataSetChanged();
@@ -23,7 +23,7 @@ public class ViewPagerAdapter extends FragmentPagerAdapter {
 
     @NonNull
     @Override
-    public detailBookFragment getItem(int position) {
+    public DetailBookFragment getItem(int position) {
         return bookFragments.get(position);
     }
 
