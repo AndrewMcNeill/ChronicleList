@@ -148,14 +148,14 @@ public class ItemListActivity extends AppCompatActivity  {
                                 Log.d("Hot", jsonBook.toString());
                                 Log.d("Hot", jsonBook.getJSONObject("authors").toString());
                                 Book book = new Book(
-                                        jsonBook.getString("id"),
+                                        jsonBook.getJSONObject("id").getString("content"),
                                         jsonBook.getString("title"),
                                         jsonBook.getJSONObject("authors").getJSONObject("author").getString("name"),
                                         jsonBook.getDouble("average_rating"),
                                         jsonBook.getString("image_url")
                                 );
                                 books.add(book);
-                                Log.d("Search", book.toString());
+                                Log.d("Hot", book.toString());
                             }
 
                             customAdapter.refresh(books); // refresh data in view
@@ -168,7 +168,7 @@ public class ItemListActivity extends AppCompatActivity  {
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.d("Search", "onErrorResponse: " + "That didn't work!");
+                Log.d("Hot", "onErrorResponse: " + "That didn't work!");
             }
         });
 
@@ -222,7 +222,7 @@ public class ItemListActivity extends AppCompatActivity  {
                                 JSONObject work = works.getJSONObject(i);
                                 JSONObject jsonBook = work.getJSONObject("best_book");
                                 Book book = new Book(
-                                        jsonBook.getString("id"),
+                                        jsonBook.getJSONObject("id").getString("content"),
                                         jsonBook.getString("title"),
                                         jsonBook.getJSONObject("author").getString("name"),
                                         work.getDouble("average_rating"),

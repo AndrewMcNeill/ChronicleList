@@ -3,20 +3,32 @@ package ca.andrewmcneill.chroniclelist;
 import android.app.Activity;
 import android.os.Bundle;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
 
 import androidx.fragment.app.Fragment;
 import androidx.viewpager.widget.ViewPager;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 
 import ca.andrewmcneill.chroniclelist.adapters.SeriesPagerAdapter;
 import ca.andrewmcneill.chroniclelist.beans.Book;
 import ca.andrewmcneill.chroniclelist.fragments.DetailBookFragment;
+import fr.arnaudguyon.xmltojsonlib.XmlToJson;
 
 /**
  * A fragment representing a single Item detail screen.
@@ -64,6 +76,9 @@ public class ItemDetailFragment extends Fragment {
         /** TODO: DO NOT KEEP
          *  TODO: DO THE API CALL HERE, GRAB ALL BOOKS (INCLUDING THOSE CONTAINED IN SERIES, USE THEM IN CREATING FRAGMENTS)
          */
+
+        getClickedBook();
+
         Book dummyBook2 = new Book("TEST_ID_2", "TEST_TITLE_2","TEST_AUTHOR_2",2.0,"https://i.redd.it/r0ux7x1q2fo41.jpg", "Desc 2");
         Book dummyBook1 = new Book("TEST_ID_1", "EYEYEYEY","TEST_AUTHOR", 1.0,"https://i.redd.it/r0ux7x1q2fo41.jpg", "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\n" +
                 "\n" +
@@ -84,5 +99,50 @@ public class ItemDetailFragment extends Fragment {
         detailViewPager.setAdapter(seriesPagerAdapter);
         seriesPagerAdapter.addFragmentsToViewPager(dummyList);
         return rootView;
+    }
+
+    private void getClickedBook() {
+
+        RequestQueue queue = Volley.newRequestQueue(this.getContext());
+
+        final String url = "https://www.goodreads.com/book/show/"+apiID+".xml?key=";
+        final String key = "z1Gl9wmQ9FBFQiLqMSlxA";
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, url+key,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        XmlToJson xmlToJson = new XmlToJson.Builder(response).build();
+                        JSONObject jsonObject = xmlToJson.toJson();
+                        try {
+                            JSONObject jsonBook = jsonObject.getJSONObject("GoodreadsResponse").getJSONObject("book");
+                            Book book = new Book(
+                                    jsonBook.getString("id"),
+                                    jsonBook.getString("title"),
+                                    jsonBook.getJSONObject("authors").getJSONObject("author").getString("name"),
+                                    jsonBook.getDouble("average_rating"),
+                                    jsonBook.getString("image_url"),
+                                    jsonBook.getString("description")
+                                    );
+                            try {
+                                JSONArray seriesID = jsonBook.getJSONObject("series_works").getJSONArray("series_work");
+                                Log.d("Book", seriesID.toString());
+                            } catch (JSONException e) {
+                                Log.d("Book", "Book is not in a series.");
+                            }
+                        } catch (JSONException e) {
+                            Log.d("Book", e.toString());
+                            e.printStackTrace();
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.d("Book", error.toString());
+                Log.d("Book", url+key);
+                Log.d("Book", "onErrorResponse: " + "getClickedBook didn't work!");
+            }
+        });
+
+        queue.add(stringRequest);
     }
 }
