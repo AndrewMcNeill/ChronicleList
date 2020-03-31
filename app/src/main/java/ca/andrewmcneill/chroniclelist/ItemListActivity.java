@@ -148,14 +148,14 @@ public class ItemListActivity extends AppCompatActivity  {
                                 Log.d("Hot", jsonBook.toString());
                                 Log.d("Hot", jsonBook.getJSONObject("authors").toString());
                                 Book book = new Book(
-                                        jsonBook.getString("id"),
+                                        jsonBook.getJSONObject("id").getString("content"),
                                         jsonBook.getString("title"),
                                         jsonBook.getJSONObject("authors").getJSONObject("author").getString("name"),
                                         jsonBook.getDouble("average_rating"),
                                         jsonBook.getString("image_url")
                                 );
                                 books.add(book);
-                                Log.d("Search", book.toString());
+                                Log.d("Hot", book.toString());
                             }
 
                             customAdapter.refresh(books); // refresh data in view
@@ -168,7 +168,7 @@ public class ItemListActivity extends AppCompatActivity  {
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.d("Search", "onErrorResponse: " + "That didn't work!");
+                Log.d("Hot", "onErrorResponse: " + "That didn't work!");
             }
         });
 
@@ -215,14 +215,29 @@ public class ItemListActivity extends AppCompatActivity  {
                         XmlToJson xmlToJson = new XmlToJson.Builder(response).build();
                         JSONObject jsonObject = xmlToJson.toJson();
                         try {
-                            JSONArray works = jsonObject.getJSONObject("GoodreadsResponse").getJSONObject("search").getJSONObject("results").getJSONArray("work");
+                            JSONObject results = jsonObject.getJSONObject("GoodreadsResponse").getJSONObject("search").getJSONObject("results");
+                            Object worksObject = results.get("work");
                             ArrayList<Book> books = new ArrayList<>();
-                            Log.d("Search", ""+works.length());
-                            for (int i = 0; i < works.length(); i++) {
-                                JSONObject work = works.getJSONObject(i);
+                            if (worksObject instanceof JSONArray) { // Multiple results
+                                JSONArray works = (JSONArray) worksObject;
+                                for (int i = 0; i < works.length(); i++) {
+                                    JSONObject work = works.getJSONObject(i);
+                                    JSONObject jsonBook = work.getJSONObject("best_book");
+                                    Book book = new Book(
+                                            jsonBook.getJSONObject("id").getString("content"),
+                                            jsonBook.getString("title"),
+                                            jsonBook.getJSONObject("author").getString("name"),
+                                            work.getDouble("average_rating"),
+                                            jsonBook.getString("image_url")
+                                    );
+                                    Log.d("Search", book.getTitle());
+                                    books.add(book);
+                                }
+                            } else { // Only one result
+                                JSONObject work = (JSONObject) worksObject;
                                 JSONObject jsonBook = work.getJSONObject("best_book");
                                 Book book = new Book(
-                                        jsonBook.getString("id"),
+                                        jsonBook.getJSONObject("id").getString("content"),
                                         jsonBook.getString("title"),
                                         jsonBook.getJSONObject("author").getString("name"),
                                         work.getDouble("average_rating"),
@@ -231,6 +246,7 @@ public class ItemListActivity extends AppCompatActivity  {
                                 Log.d("Search", book.getTitle());
                                 books.add(book);
                             }
+
                             customAdapter.refresh(books);
                         } catch (JSONException e) {
                             e.printStackTrace();
