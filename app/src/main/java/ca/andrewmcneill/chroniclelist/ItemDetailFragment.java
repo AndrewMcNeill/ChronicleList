@@ -44,6 +44,10 @@ public class ItemDetailFragment extends Fragment {
     private String apiID;
     private boolean twoPane;
 
+    private int clickedBook = 0;
+
+    private ViewPager detailViewPager;
+
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
      * fragment (e.g. upon screen orientation changes).
@@ -72,32 +76,10 @@ public class ItemDetailFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.book_detail, container, false);
-
-        /** TODO: DO NOT KEEP
-         *  TODO: DO THE API CALL HERE, GRAB ALL BOOKS (INCLUDING THOSE CONTAINED IN SERIES, USE THEM IN CREATING FRAGMENTS)
-         */
+        detailViewPager = rootView.findViewById(R.id.detailViewPager);
 
         getClickedBook();
 
-        Book dummyBook2 = new Book("TEST_ID_2", "TEST_TITLE_2","TEST_AUTHOR_2",2.0,"https://i.redd.it/r0ux7x1q2fo41.jpg", "Desc 2");
-        Book dummyBook1 = new Book("TEST_ID_1", "EYEYEYEY","TEST_AUTHOR", 1.0,"https://i.redd.it/r0ux7x1q2fo41.jpg", "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\n" +
-                "\n" +
-                "Curabitur pretium tincidunt lacus. Nulla gravida orci a odio. Nullam varius, turpis et commodo pharetra, est eros bibendum elit, nec luctus magna felis sollicitudin mauris. Integer in mauris eu nibh euismod gravida. Duis ac tellus et risus vulputate vehicula. Donec lobortis risus a elit. Etiam tempor. Ut ullamcorper, ligula eu tempor congue, eros est euismod turpis, id tincidunt sapien risus a quam. Maecenas fermentum consequat mi. Donec fermentum. Pellentesque malesuada nulla a mi. Duis sapien sem, aliquet nec, commodo eget, consequat quis, neque. Aliquam faucibus, elit ut dictum aliquet, felis nisl adipiscing sapien, sed malesuada diam lacus eget erat. Cras mollis scelerisque nunc. Nullam arcu. Aliquam consequat. Curabitur augue lorem, dapibus quis, laoreet et, pretium ac, nisi. Aenean magna nisl, mollis quis, molestie eu, feugiat in, orci. In hac habitasse platea dictumst.");
-
-        // Create a fragment for each book, pass in twoPane argument to determine which layout to use (phone / tablet)
-        DetailBookFragment dummyFragment1 = DetailBookFragment.newInstance(dummyBook1, twoPane);
-        DetailBookFragment dummyFragment2 = DetailBookFragment.newInstance(dummyBook2, twoPane);
-        // Place all the fragments into an array list
-        ArrayList<DetailBookFragment> dummyList = new ArrayList<>();
-        dummyList.add(dummyFragment2);
-        dummyList.add(dummyFragment1);
-        /** DO NOT KEEP **/
-
-        // This can stay, only thing to modify from this is replace dummyList with an actual list of detail book fragments
-        ViewPager detailViewPager = rootView.findViewById(R.id.detailViewPager);
-        SeriesPagerAdapter seriesPagerAdapter = new SeriesPagerAdapter(getChildFragmentManager());
-        detailViewPager.setAdapter(seriesPagerAdapter);
-        seriesPagerAdapter.addFragmentsToViewPager(dummyList);
         return rootView;
     }
 
@@ -149,6 +131,9 @@ public class ItemDetailFragment extends Fragment {
                                 getSeries(seriesID);
                             } catch (JSONException e) {
                                 Log.d("Book", "Book is not in a series.");
+                                ArrayList<String> bookIDs = new ArrayList<>();
+                                bookIDs.add(apiID);
+                                populateViewPager(bookIDs);
                             }
                         } catch (JSONException e) {
                             Log.d("Book", e.toString());
@@ -181,9 +166,21 @@ public class ItemDetailFragment extends Fragment {
                         JSONObject jsonObject = xmlToJson.toJson();
                         try {
                             Log.d("Series", jsonObject.toString());
-                            jsonObject.getJSONObject("GoodreadsResponse");
+                            JSONObject series_works = jsonObject.getJSONObject("GoodreadsResponse").getJSONObject("series").getJSONObject("series_works");
+                            JSONArray works = series_works.getJSONArray("series_work");
+                            ArrayList<String> bookIDs = new ArrayList<>();
+                            for (int i = 0; i < works.length(); i++) {
+                                JSONObject work = works.getJSONObject(i).getJSONObject("work");
+                                JSONObject jsonBook = work.getJSONObject("best_book");
+                                String id = jsonBook.getString("id");
+                                if (id.equals(apiID))
+                                    clickedBook = i;
+                                Log.d("Series", id + " " + apiID + " " + clickedBook);
+                                bookIDs.add(id);
+                            }
+                            populateViewPager(bookIDs);
                         } catch (JSONException e) {
-
+                            Log.d("Series", e.toString());
                         }
                     }
                 }, new Response.ErrorListener() {
@@ -196,5 +193,20 @@ public class ItemDetailFragment extends Fragment {
         });
 
         queue.add(stringRequest);
+    }
+
+    private void populateViewPager(ArrayList<String> ids) {
+        ArrayList<DetailBookFragment> bookFragments = new ArrayList<>();
+        for (int i = 0; i < ids.size(); i++) {
+
+            DetailBookFragment bookFragment = DetailBookFragment.newInstance(ids.get(i), twoPane);
+            bookFragments.add(bookFragment);
+        }
+        Log.d("Pager", "Setting up viewpager " + clickedBook);
+        detailViewPager.setOffscreenPageLimit(ids.size());
+        SeriesPagerAdapter seriesPagerAdapter = new SeriesPagerAdapter(getChildFragmentManager());
+        detailViewPager.setAdapter(seriesPagerAdapter);
+        seriesPagerAdapter.addFragmentsToViewPager(bookFragments);
+        detailViewPager.setCurrentItem(clickedBook);
     }
 }
