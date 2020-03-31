@@ -115,17 +115,38 @@ public class ItemDetailFragment extends Fragment {
                         JSONObject jsonObject = xmlToJson.toJson();
                         try {
                             JSONObject jsonBook = jsonObject.getJSONObject("GoodreadsResponse").getJSONObject("book");
+                            String author = "Shit, this didn't work.";
+                            Object authorObject = jsonBook.getJSONObject("authors").get("author");
+                            if (authorObject instanceof JSONObject)
+                                author = ((JSONObject) authorObject).getString("name");
+                            else if (authorObject instanceof JSONArray)
+                                author = ((JSONArray) authorObject).getJSONObject(0).getString("name");
+                            String description ="No description available.";
+                            try {
+                                description = jsonBook.getString("description");
+                            } catch (JSONException e) {
+                                Log.d("Book", "No description for " + jsonBook.getString("title"));
+                            }
                             Book book = new Book(
                                     jsonBook.getString("id"),
                                     jsonBook.getString("title"),
-                                    jsonBook.getJSONObject("authors").getJSONObject("author").getString("name"),
+                                    author,
                                     jsonBook.getDouble("average_rating"),
                                     jsonBook.getString("image_url"),
-                                    jsonBook.getString("description")
+                                    description
                                     );
+                            Log.d("Book", "Description: " + book.getDescription());
                             try {
-                                JSONArray seriesID = jsonBook.getJSONObject("series_works").getJSONArray("series_work");
-                                Log.d("Book", seriesID.toString());
+                                JSONObject seriesObject = jsonBook.getJSONObject("series_works");
+                                String seriesID="";
+                                try {
+                                    JSONArray seriesArray = seriesObject.getJSONArray("series_work");
+                                    seriesID = seriesArray.getJSONObject(0).getJSONObject("series").getString("id");
+                                } catch (JSONException e) {
+                                    Log.d("Book", "Book is in only one series.");
+                                    seriesID = seriesObject.getJSONObject("series_work").getJSONObject("series").getString("id");
+                                }
+                                getSeries(seriesID);
                             } catch (JSONException e) {
                                 Log.d("Book", "Book is not in a series.");
                             }
@@ -140,6 +161,37 @@ public class ItemDetailFragment extends Fragment {
                 Log.d("Book", error.toString());
                 Log.d("Book", url+key);
                 Log.d("Book", "onErrorResponse: " + "getClickedBook didn't work!");
+            }
+        });
+
+        queue.add(stringRequest);
+    }
+
+    private void getSeries(String seriesID) {
+
+        RequestQueue queue = Volley.newRequestQueue(this.getContext());
+
+        final String url = "https://www.goodreads.com/series/show/" + seriesID + ".xml?key=";
+        final String key = "z1Gl9wmQ9FBFQiLqMSlxA";
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, url + key,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        XmlToJson xmlToJson = new XmlToJson.Builder(response).build();
+                        JSONObject jsonObject = xmlToJson.toJson();
+                        try {
+                            Log.d("Series", jsonObject.toString());
+                            jsonObject.getJSONObject("GoodreadsResponse");
+                        } catch (JSONException e) {
+
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.d("Series", error.toString());
+                Log.d("Series", url + key);
+                Log.d("Series", "onErrorResponse: " + "getSeries didn't work!");
             }
         });
 
