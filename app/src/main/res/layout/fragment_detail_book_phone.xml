@@ -15,7 +15,7 @@
             android:id="@+id/addToDB"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Button"
+            android:text="Save Book"
             app:layout_constraintBottom_toBottomOf="@+id/book_detail_image"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/book_detail_image"
