@@ -31,6 +31,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import ca.andrewmcneill.chroniclelist.Helpers.DBHelper;
 import ca.andrewmcneill.chroniclelist.adapters.BookAdapter;
 import ca.andrewmcneill.chroniclelist.beans.Book;
 import fr.arnaudguyon.xmltojsonlib.XmlToJson;
@@ -189,6 +190,12 @@ public class ItemListActivity extends AppCompatActivity  {
         }
         else
             searchDone();
+    }
+
+    private void storedSelected() {
+        DBHelper db = new DBHelper(this);
+        ArrayList<Book> storedBooks = db.getAllBooks();
+        customAdapter.refresh(storedBooks);
     }
 
     private void searchDone() {
