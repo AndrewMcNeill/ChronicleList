@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.RatingBar;
 import android.widget.TextView;
 
 import com.android.volley.Request;
@@ -36,7 +37,7 @@ import fr.arnaudguyon.xmltojsonlib.XmlToJson;
  * Use the {@link DetailBookFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class DetailBookFragment extends Fragment {
+public class DetailBookFragment extends Fragment{
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String BOOK_ID = "arg_id";
@@ -53,6 +54,7 @@ public class DetailBookFragment extends Fragment {
     private TextView tRating;
     private ImageView tCover;
     private Button tAddToDB;
+    private RatingBar tUserRatingBar;
 
 
 
@@ -98,6 +100,19 @@ public class DetailBookFragment extends Fragment {
         tRating =  view.findViewById(R.id.book_rating);
         tCover = view.findViewById(R.id.book_detail_image);
         tAddToDB = view.findViewById(R.id.addToDB);
+        tUserRatingBar = view.findViewById(R.id.userRating);
+        tUserRatingBar.setOnRatingBarChangeListener(new RatingBar.OnRatingBarChangeListener() {
+            @Override
+            public void onRatingChanged(RatingBar ratingBar, float v, boolean b) {
+                if (b) {
+                    DBHelper db = new DBHelper(getContext());
+                    db.addBook(tBook);
+                    db.updateBookRating(tBook, v);
+                    Log.d("STRING IMAGE URL", tBook.getCoverUrl());
+                }
+
+            }
+        });
         tAddToDB.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -111,7 +126,6 @@ public class DetailBookFragment extends Fragment {
             }
         });
         getBook();
-
         return view;
     }
 
@@ -168,11 +182,16 @@ public class DetailBookFragment extends Fragment {
     }
 
     private void inflateBook(Book book) {
-
+        DBHelper db = new DBHelper(getContext());
+        float userRating = db.getUserRating(book.getApiID());
+        db.close();
         tTitle.setText(book.getTitle());
         tAuthor.setText(book.getAuthor());
         tDesc.setText(book.getDescription());
         tRating.setText(Double.toString(book.getRating()));
+        tUserRatingBar.setRating(userRating);
         Picasso.get().load(book.getCoverUrl()).into(tCover);
     }
+
+
 }

@@ -16,7 +16,7 @@ public class DBHelper extends SQLiteOpenHelper {
         DB Params
      */
 
-    public static final int DB_VERSION = 1;
+    public static final int DB_VERSION = 2;
     public static final String DB_NAME = "chronicleList";
 
     // Schema DB
@@ -33,11 +33,12 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String COLUMN_TITLE = "title";
     public static final String COLUMN_AUTHOR = "author";
     public static final String COLUMN_RATING = "rating";
+    public static final String COLUMN_USER_RATING = "user_rating";
     public static final String COLUMN_IMG_URL = "image";
     public static final String COLUMN_API_ID = "api_id";
 
     public static final String CREATE_BOOK_COLLECTIONS_TABLE = "CREATE TABLE " + TABLE_BOOKS + "(" +  COLUMN_API_ID + " TEXT PRIMARY KEY, "
-            + COLUMN_TITLE + " TEXT, " + COLUMN_AUTHOR + " TEXT, " + COLUMN_RATING + " REAL, " + COLUMN_IMG_URL + " TEXT)";
+            + COLUMN_TITLE + " TEXT, " + COLUMN_AUTHOR + " TEXT, " + COLUMN_RATING + " REAL, " + COLUMN_USER_RATING + " REAL, " + COLUMN_IMG_URL + " TEXT)";
 
     /*
         Methods
@@ -49,6 +50,7 @@ public class DBHelper extends SQLiteOpenHelper {
         values.put(COLUMN_TITLE, book.getTitle());
         values.put(COLUMN_AUTHOR, book.getAuthor());
         values.put(COLUMN_RATING, book.getRating());
+        values.put(COLUMN_USER_RATING, 0);
         values.put(COLUMN_IMG_URL, book.getCoverUrl());
         values.put(COLUMN_API_ID, book.getApiID());
 
@@ -76,12 +78,25 @@ public class DBHelper extends SQLiteOpenHelper {
                     cursor.getString(1),
                     cursor.getString(2),
                     cursor.getInt(3),
-                    cursor.getString(4)
+                    cursor.getString(5)
             );
         }
         cursor.close();
         db.close();
         return book;
+    }
+
+    public float getUserRating(String api_id) {
+        SQLiteDatabase db  = this.getReadableDatabase();
+        float rating = 0;
+
+        Cursor cursor = db.query(TABLE_BOOKS, new String[]{ COLUMN_USER_RATING }, COLUMN_API_ID + "= ?",
+                new String[]{String.valueOf(api_id)}, null, null, null);
+
+        if(cursor.moveToFirst()){ rating = cursor.getFloat(0); }
+        cursor.close();
+        db.close();
+        return rating;
     }
 
     public ArrayList<Book> getAllBooks() {
@@ -95,7 +110,7 @@ public class DBHelper extends SQLiteOpenHelper {
                     cursor.getString(1),
                     cursor.getString(2),
                     cursor.getInt(3),
-                    cursor.getString(4)
+                    cursor.getString(5)
             ));
         }
         cursor.close();
@@ -104,10 +119,10 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
 
-    public int updateBookRating(Book book, double rating) {
+    public int updateBookRating(Book book, float rating) {
         SQLiteDatabase db = getWritableDatabase();
         ContentValues v = new ContentValues();
-        v.put(COLUMN_RATING, rating);
+        v.put(COLUMN_USER_RATING, rating); // change to use user rating instead of goodreads rating
         return db.update(TABLE_BOOKS, v, COLUMN_API_ID + "=?",
                 new String[]{String.valueOf( book.getApiID() )});
     }

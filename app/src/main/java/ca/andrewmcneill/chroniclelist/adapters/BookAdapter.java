@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -79,6 +80,7 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.ViewHolder> {
         holder.bookTitle.setText(books.get(position).getTitle());
         holder.bookAuthor.setText(books.get(position).getAuthor());
         holder.bookRating.setText(Double.toString(books.get(position).getRating()));
+        Log.d("onBindViewHolderPicasso", books.get(position).getCoverUrl());
         Picasso.get().load(books.get(position).getCoverUrl()).into(holder.bookCoverImage);
         holder.itemView.setTag(books.get(position));
         holder.itemView.setOnClickListener(mOnClickListener);
