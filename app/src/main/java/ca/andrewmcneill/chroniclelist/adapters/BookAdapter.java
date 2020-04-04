@@ -1,6 +1,8 @@
 package ca.andrewmcneill.chroniclelist.adapters;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -11,11 +13,13 @@ import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.snackbar.Snackbar;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import ca.andrewmcneill.chroniclelist.Helpers.DBHelper;
 import ca.andrewmcneill.chroniclelist.ItemDetailActivity;
 import ca.andrewmcneill.chroniclelist.ItemDetailFragment;
 import ca.andrewmcneill.chroniclelist.ItemListActivity;
@@ -29,6 +33,7 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.ViewHolder> {
     private final ItemListActivity mParentActivity;
     private final List<Book> books;
     private final boolean mTwoPane;
+    private Context context;
 
     private final View.OnClickListener mOnClickListener = new View.OnClickListener() {
         @Override
@@ -55,10 +60,11 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.ViewHolder> {
 
     public BookAdapter(ItemListActivity parent,
                        List<Book> books,
-                       boolean twoPane) {
+                       boolean twoPane, Context context) {
         this.books = books;
         mParentActivity = parent;
         mTwoPane = twoPane;
+        this.context = context;
     }
 
     @Override
@@ -91,7 +97,7 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.ViewHolder> {
         notifyDataSetChanged();
     }
 
-    class ViewHolder extends RecyclerView.ViewHolder {
+    class ViewHolder extends RecyclerView.ViewHolder implements View.OnLongClickListener {
         final TextView bookTitle;
         final TextView bookAuthor;
         final TextView bookRating;
@@ -99,10 +105,34 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.ViewHolder> {
 
         ViewHolder(View view) {
             super(view);
+            view.setOnLongClickListener(this);
             bookTitle = view.findViewById(R.id.bookTitleText);
             bookAuthor = view.findViewById(R.id.bookAuthor);
             bookCoverImage = view.findViewById(R.id.bookCoverImage);
             bookRating = view.findViewById(R.id.bookRating);
+        }
+
+        @Override
+        public boolean onLongClick(final View view) {
+            final String bookName = books.get(getLayoutPosition()).getTitle();
+            new AlertDialog.Builder(context)
+                    .setTitle("Remove Book")
+                    .setMessage("Do you want to remove " + bookName + "?")
+                    .setIcon(R.drawable.ic_delete_forever_black_24dp)
+                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            DBHelper db = new DBHelper(context);
+                            db.deleteBook(books.get(getLayoutPosition()).getApiID());
+                            books.remove(getAdapterPosition());
+                            notifyItemRemoved(getAdapterPosition());
+                            db.close();
+                            Snackbar.make(view, bookName + " was removed!", Snackbar.LENGTH_LONG)
+                                    .setAction("Action", null).show();
+                        }
+                    })
+                    .setNegativeButton("No", null).show();
+            return true;
         }
     }
 }

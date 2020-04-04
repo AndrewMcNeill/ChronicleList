@@ -87,7 +87,7 @@ public class ItemListActivity extends AppCompatActivity  {
 
         View recyclerView = findViewById(R.id.item_list);
         assert recyclerView != null;
-        customAdapter = new BookAdapter(this, new ArrayList<Book>(), mTwoPane);
+        customAdapter = new BookAdapter(this, new ArrayList<Book>(), mTwoPane, this);
         setupRecyclerView((RecyclerView) recyclerView, customAdapter);
 
 

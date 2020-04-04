@@ -113,7 +113,7 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
 
-    public void deleteBook(int api_id){
+    public void deleteBook(String api_id){
         SQLiteDatabase db = this.getWritableDatabase();
         db.delete(TABLE_BOOKS, COLUMN_API_ID + " = ?",
                 new String[]{ String.valueOf(api_id) });
