@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -18,12 +19,14 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.android.material.snackbar.Snackbar;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import ca.andrewmcneill.chroniclelist.Helpers.DBHelper;
 import ca.andrewmcneill.chroniclelist.R;
 import ca.andrewmcneill.chroniclelist.beans.Book;
 import fr.arnaudguyon.xmltojsonlib.XmlToJson;
@@ -37,27 +40,19 @@ public class DetailBookFragment extends Fragment {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String BOOK_ID = "arg_id";
-    private static final String BOOK_TITLE = "arg_title";
-    private static final String BOOK_AUTHOR = "arg_author";
-    private static final String BOOK_DESC = "arg_desc";
-    private static final String BOOK_RATING = "arg_rating";
-    private static final String BOOK_COVER = "arg_cover";
     private static final String TWO_PANE = "arg_twoPane";
 
     // TODO: Rename and change types of parameters
     private String id;
-    private String title;
-    private String author;
-    private String desc;
-    private Double rating;
-    private String cover;
     private boolean twoPane;
+    private Book tBook;
 
     private TextView tAuthor;
     private TextView tTitle;
     private TextView tDesc;
     private TextView tRating;
     private ImageView tCover;
+    private Button tAddToDB;
 
 
 
@@ -76,11 +71,6 @@ public class DetailBookFragment extends Fragment {
     public static DetailBookFragment newInstance(String bookID, boolean twoPane) {
         DetailBookFragment fragment = new DetailBookFragment();
         Bundle args = new Bundle();
-//        args.putString(BOOK_TITLE, book.getTitle());
-//        args.putString(BOOK_AUTHOR, book.getAuthor());
-//        args.putString(BOOK_DESC, book.getDescription());
-//        args.putDouble(BOOK_RATING, book.getRating());
-//        args.putString(BOOK_COVER, book.getCoverUrl());
         args.putString(BOOK_ID, bookID);
         args.putBoolean(TWO_PANE, twoPane);
         fragment.setArguments(args);
@@ -91,11 +81,6 @@ public class DetailBookFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-//            title = getArguments().getString(BOOK_TITLE);
-//            author = getArguments().getString(BOOK_AUTHOR);
-//            desc = getArguments().getString(BOOK_DESC);
-//            rating = getArguments().getDouble(BOOK_RATING);
-//            cover = getArguments().getString(BOOK_COVER);
             id = getArguments().getString(BOOK_ID);
             twoPane = getArguments().getBoolean(TWO_PANE);
         }
@@ -112,8 +97,19 @@ public class DetailBookFragment extends Fragment {
         tDesc = view.findViewById(R.id.book_desc);
         tRating =  view.findViewById(R.id.book_rating);
         tCover = view.findViewById(R.id.book_detail_image);
-
-        Log.d("Pager", "Test");
+        tAddToDB = view.findViewById(R.id.addToDB);
+        tAddToDB.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (tBook != null) { // avoid condition where app will crash before book is loaded when attempting to save
+                    DBHelper db = new DBHelper(getContext());
+                    db.addBook(tBook);
+                    db.close();
+                    Snackbar.make(view, "Book stored!", Snackbar.LENGTH_LONG)
+                            .setAction("Action", null).show();
+                }
+            }
+        });
         getBook();
 
         return view;
@@ -153,6 +149,7 @@ public class DetailBookFragment extends Fragment {
                                     description
                             );
                             inflateBook(book);
+                            tBook = book;
                         } catch (JSONException e) {
                             Log.d("Book", e.toString());
                             e.printStackTrace();

@@ -111,14 +111,15 @@ public class ItemListActivity extends AppCompatActivity  {
                 return false;
             }
         });
-
+        storedSelected();
     }
 
     private void navSelected(MenuItem item) {
         Log.d("BottomNavigation", "onNavigationItemSelected: " + item.toString());
         switch (item.getItemId()) {
             case R.id.stored:
-                Log.d("BottomNavigation", "Load stored books from db plz");
+                //Log.d("BottomNavigation", "Load stored books from db plz");
+                storedSelected();
                 break;
             case R.id.hot:
                 hotSelected();
