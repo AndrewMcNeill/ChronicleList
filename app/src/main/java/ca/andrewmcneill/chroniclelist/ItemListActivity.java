@@ -111,7 +111,7 @@ public class ItemListActivity extends AppCompatActivity  {
                 return false;
             }
         });
-
+        storedSelected();
     }
 
     private void navSelected(MenuItem item) {

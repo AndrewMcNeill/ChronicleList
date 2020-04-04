@@ -19,6 +19,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.android.material.snackbar.Snackbar;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
@@ -100,9 +101,13 @@ public class DetailBookFragment extends Fragment {
         tAddToDB.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                DBHelper db = new DBHelper(getContext());
-                db.addBook(tBook);
-                db.close();
+                if (tBook != null) { // avoid condition where app will crash before book is loaded when attempting to save
+                    DBHelper db = new DBHelper(getContext());
+                    db.addBook(tBook);
+                    db.close();
+                    Snackbar.make(view, "Book stored!", Snackbar.LENGTH_LONG)
+                            .setAction("Action", null).show();
+                }
             }
         });
         getBook();
