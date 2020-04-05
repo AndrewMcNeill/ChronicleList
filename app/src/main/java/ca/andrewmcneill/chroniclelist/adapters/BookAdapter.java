@@ -34,6 +34,7 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.ViewHolder> {
     private final ItemListActivity mParentActivity;
     private final List<Book> books;
     private final boolean mTwoPane;
+    private boolean isStored;
     private Context context;
 
     private final View.OnClickListener mOnClickListener = new View.OnClickListener() {
@@ -79,7 +80,14 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.ViewHolder> {
     public void onBindViewHolder(final ViewHolder holder, int position) {
         holder.bookTitle.setText(books.get(position).getTitle());
         holder.bookAuthor.setText(books.get(position).getAuthor());
-        holder.bookRating.setText(Double.toString(books.get(position).getRating()));
+        if (isStored) {
+            DBHelper db = new DBHelper(context);
+            double userRating = db.getUserRating(books.get(position).getApiID());
+            holder.bookRating.setText(Double.toString(userRating));
+            db.close();
+        } else {
+            holder.bookRating.setText(Double.toString(books.get(position).getRating()));
+        }
         Log.d("onBindViewHolderPicasso", books.get(position).getCoverUrl());
         Picasso.get().load(books.get(position).getCoverUrl()).into(holder.bookCoverImage);
         holder.itemView.setTag(books.get(position));
@@ -92,10 +100,19 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.ViewHolder> {
     }
 
 
-    public void refresh(ArrayList<Book> newBooks)
+    public void refresh(ArrayList<Book> newBooks, boolean isStored)
     {
+        this.isStored = isStored;
         books.clear();
         books.addAll(newBooks);
+        notifyDataSetChanged();
+    }
+
+    public void update() {
+        ArrayList<Book> newBooks = new ArrayList<>(books);
+        books.clear();
+        books.addAll(newBooks);
+        newBooks.clear();
         notifyDataSetChanged();
     }
 

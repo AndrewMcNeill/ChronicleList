@@ -28,9 +28,12 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import ca.andrewmcneill.chroniclelist.Helpers.DBHelper;
+import ca.andrewmcneill.chroniclelist.ItemListActivity;
 import ca.andrewmcneill.chroniclelist.R;
 import ca.andrewmcneill.chroniclelist.beans.Book;
 import fr.arnaudguyon.xmltojsonlib.XmlToJson;
+
+import static ca.andrewmcneill.chroniclelist.ItemListActivity.customAdapter;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -53,7 +56,6 @@ public class DetailBookFragment extends Fragment{
     private TextView tDesc;
     private TextView tRating;
     private ImageView tCover;
-    private Button tAddToDB;
     private RatingBar tUserRatingBar;
 
 
@@ -93,13 +95,12 @@ public class DetailBookFragment extends Fragment{
                              Bundle savedInstanceState) {
         // determine if user is in tablet or phone layout
         int layout = twoPane ? R.layout.fragment_detail_book_tablet : R.layout.fragment_detail_book_phone;
-        View view = inflater.inflate(layout, container, false);
+        final View view = inflater.inflate(layout, container, false);
         tAuthor = view.findViewById(R.id.book_author);
         tTitle = view.findViewById(R.id.book_title);
         tDesc = view.findViewById(R.id.book_desc);
         tRating =  view.findViewById(R.id.book_rating);
         tCover = view.findViewById(R.id.book_detail_image);
-        tAddToDB = view.findViewById(R.id.addToDB);
         tUserRatingBar = view.findViewById(R.id.userRating);
         tUserRatingBar.setOnRatingBarChangeListener(new RatingBar.OnRatingBarChangeListener() {
             @Override
@@ -109,20 +110,11 @@ public class DetailBookFragment extends Fragment{
                     db.addBook(tBook);
                     db.updateBookRating(tBook, v);
                     Log.d("STRING IMAGE URL", tBook.getCoverUrl());
+                    Snackbar.make(view, "Book and Rating Saved!", Snackbar.LENGTH_LONG)
+                            .setAction("Action", null).show();
+                    customAdapter.update();
                 }
 
-            }
-        });
-        tAddToDB.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (tBook != null) { // avoid condition where app will crash before book is loaded when attempting to save
-                    DBHelper db = new DBHelper(getContext());
-                    db.addBook(tBook);
-                    db.close();
-                    Snackbar.make(view, "Book stored!", Snackbar.LENGTH_LONG)
-                            .setAction("Action", null).show();
-                }
             }
         });
         getBook();

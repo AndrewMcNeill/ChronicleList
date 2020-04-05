@@ -56,7 +56,7 @@ public class ItemListActivity extends AppCompatActivity  {
      */
     private boolean mTwoPane;
     private EditText searchBar;
-    private BookAdapter customAdapter;
+    public static BookAdapter customAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -160,7 +160,7 @@ public class ItemListActivity extends AppCompatActivity  {
                                 Log.d("Hot", book.toString());
                             }
 
-                            customAdapter.refresh(books); // refresh data in view
+                            customAdapter.refresh(books, false); // refresh data in view
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -196,7 +196,7 @@ public class ItemListActivity extends AppCompatActivity  {
     private void storedSelected() {
         DBHelper db = new DBHelper(this);
         ArrayList<Book> storedBooks = db.getAllBooks();
-        customAdapter.refresh(storedBooks);
+        customAdapter.refresh(storedBooks, true);
     }
 
     private void searchDone() {
@@ -255,7 +255,7 @@ public class ItemListActivity extends AppCompatActivity  {
                                 books.add(book);
                             }
 
-                            customAdapter.refresh(books);
+                            customAdapter.refresh(books,false);
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
