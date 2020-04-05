@@ -11,16 +11,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <Button
-            android:id="@+id/addToDB"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Save Book"
-            app:layout_constraintBottom_toBottomOf="@+id/book_detail_image"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/book_detail_image"
-            app:layout_constraintTop_toBottomOf="@+id/book_rating" />
-
         <ImageView
             android:id="@+id/book_detail_image"
             android:layout_width="180dp"
@@ -88,7 +78,7 @@
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/book_detail_image"
-            app:layout_constraintVertical_bias="0.0" />
+            app:layout_constraintVertical_bias="0.57" />
 
         <TextView
             android:id="@+id/book_rating"
@@ -115,6 +105,32 @@
             app:layout_constraintStart_toEndOf="@+id/book_rating"
             app:layout_constraintTop_toBottomOf="@+id/book_author"
             app:srcCompat="@drawable/ic_star_black_24dp" />
+
+        <RatingBar
+            android:id="@+id/userRating"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="8dp"
+            android:isIndicator="false"
+            app:layout_constraintBottom_toTopOf="@+id/textView4"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toEndOf="@+id/textView2"
+            app:layout_constraintTop_toBottomOf="@+id/book_detail_image" />
+
+        <TextView
+            android:id="@+id/textView2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:text="Your Rating"
+            app:layout_constraintBottom_toTopOf="@+id/textView4"
+            app:layout_constraintEnd_toEndOf="@+id/book_detail_image"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/book_detail_image" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </ScrollView>
