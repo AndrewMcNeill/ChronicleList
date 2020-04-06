@@ -2,6 +2,10 @@
 
     <PreferenceCategory app:title="@string/messages_header">
 
+        <SwitchPreferenceCompat
+            app:key="start_hot"
+            app:title="Start app on Hot page" />
+
         <EditTextPreference
             app:key="signature"
             app:title="@string/signature_title"
