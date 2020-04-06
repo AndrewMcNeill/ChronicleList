@@ -1,6 +1,7 @@
 package ca.andrewmcneill.chroniclelist;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -20,6 +21,8 @@ import com.google.android.material.snackbar.Snackbar;
 
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
@@ -39,6 +42,7 @@ import fr.arnaudguyon.xmltojsonlib.XmlToJson;
 import java.util.ArrayList;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.Random;
 
 /**
  * An activity representing a list of Items. This activity
@@ -113,6 +117,29 @@ public class ItemListActivity extends AppCompatActivity  {
         });
         storedSelected();
     }
+
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle item selection
+        switch (item.getItemId()) {
+            case R.id.settings:
+                Intent i = new Intent(this, SettingsActivity.class);
+
+                startActivity(i);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+
+
 
     private void navSelected(MenuItem item) {
         Log.d("BottomNavigation", "onNavigationItemSelected: " + item.toString());
