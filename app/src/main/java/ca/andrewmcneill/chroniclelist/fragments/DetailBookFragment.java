@@ -4,6 +4,7 @@ package ca.andrewmcneill.chroniclelist.fragments;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.preference.PreferenceManager;
 
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -110,8 +111,10 @@ public class DetailBookFragment extends Fragment{
                     db.addBook(tBook);
                     db.updateBookRating(tBook, v);
                     Log.d("STRING IMAGE URL", tBook.getCoverUrl());
-                    Snackbar.make(view, "Book and Rating Saved!", Snackbar.LENGTH_LONG)
-                            .setAction("Action", null).show();
+                    if (PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean("enable_toast", true)) {
+                        Snackbar.make(view, "Book and Rating Saved!", Snackbar.LENGTH_LONG)
+                                .setAction("Action", null).show();
+                    }
                     customAdapter.update();
                 }
 
