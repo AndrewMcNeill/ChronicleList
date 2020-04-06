@@ -1,0 +1,17 @@
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <SwitchPreferenceCompat
+        app:key="start_hot"
+        app:title="Start app on Hot page" />
+
+    <SwitchPreferenceCompat
+        app:key="enable_toast"
+        app:defaultValue="true"
+        app:title="Show message on book save" />
+
+    <SwitchPreferenceCompat
+        app:key="enable_series"
+        app:defaultValue="true"
+        app:title="Load series with book" />
+
+</PreferenceScreen>

@@ -1,10 +1,13 @@
 package ca.andrewmcneill.chroniclelist;
 
 import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.appcompat.widget.Toolbar;
 
@@ -20,6 +23,8 @@ import com.google.android.material.snackbar.Snackbar;
 
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
@@ -39,6 +44,7 @@ import fr.arnaudguyon.xmltojsonlib.XmlToJson;
 import java.util.ArrayList;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.Random;
 
 /**
  * An activity representing a list of Items. This activity
@@ -48,7 +54,7 @@ import java.net.URLEncoder;
  * item details. On tablets, the activity presents the list of items and
  * item details side-by-side using two vertical panes.
  */
-public class ItemListActivity extends AppCompatActivity  {
+public class ItemListActivity extends AppCompatActivity implements SharedPreferences.OnSharedPreferenceChangeListener  {
 
     /**
      * Whether or not the activity is in two-pane mode, i.e. running on a tablet
@@ -112,7 +118,49 @@ public class ItemListActivity extends AppCompatActivity  {
             }
         });
         storedSelected();
+
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        sharedPreferences.registerOnSharedPreferenceChangeListener(this);
+
+
+        if (PreferenceManager.getDefaultSharedPreferences(this).getBoolean("start_hot", false)) {
+            bottomNavigationView.setSelectedItemId(R.id.hot);
+        }
+
     }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        // Use this when you actually want to grab a setting anywhere
+        // PreferenceManager.getDefaultSharedPreferences(this).getString("signature", "default")
+
+        if (key.equals("sync")) {
+            Log.d("Pref", "Toggled sync: " + sharedPreferences.getBoolean("sync", false));
+        }
+    }
+
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle item selection
+        switch (item.getItemId()) {
+            case R.id.settings:
+                Intent i = new Intent(this, SettingsActivity.class);
+
+                startActivity(i);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+
+
 
     private void navSelected(MenuItem item) {
         Log.d("BottomNavigation", "onNavigationItemSelected: " + item.toString());
