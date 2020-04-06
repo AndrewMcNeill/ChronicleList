@@ -12,6 +12,7 @@ import com.android.volley.toolbox.Volley;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
 
 import androidx.fragment.app.Fragment;
+import androidx.preference.PreferenceManager;
 import androidx.viewpager.widget.ViewPager;
 
 import android.util.Log;
@@ -119,6 +120,15 @@ public class ItemDetailFragment extends Fragment {
                                     description
                                     );
                             Log.d("Book", "Description: " + book.getDescription());
+
+
+                            if (!PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean("enable_series", true)) {
+                                ArrayList<String> bookIDs = new ArrayList<>();
+                                bookIDs.add(apiID);
+                                populateViewPager(bookIDs);
+                                return;
+                            }
+
                             try {
                                 JSONObject seriesObject = jsonBook.getJSONObject("series_works");
                                 String seriesID="";
