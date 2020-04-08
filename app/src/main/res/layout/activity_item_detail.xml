@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
+    android:background="#E7DFD4"
     tools:context=".ItemDetailActivity"
     tools:ignore="MergeRootFrame">
 
