@@ -3,8 +3,10 @@ package ca.andrewmcneill.chroniclelist.Helpers;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 import java.util.ArrayList;
 
@@ -55,7 +57,6 @@ public class DBHelper extends SQLiteOpenHelper {
         values.put(COLUMN_API_ID, book.getApiID());
 
         db.insert(TABLE_BOOKS, null, values);
-        db.close();
     }
 
     public Book getBook(int api_id){
@@ -82,20 +83,19 @@ public class DBHelper extends SQLiteOpenHelper {
             );
         }
         cursor.close();
-        db.close();
         return book;
     }
 
     public float getUserRating(String api_id) {
-        SQLiteDatabase db  = this.getReadableDatabase();
         float rating = 0;
-
-        Cursor cursor = db.query(TABLE_BOOKS, new String[]{ COLUMN_USER_RATING }, COLUMN_API_ID + "= ?",
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(TABLE_BOOKS, new String[]{COLUMN_USER_RATING}, COLUMN_API_ID + "= ?",
                 new String[]{String.valueOf(api_id)}, null, null, null);
 
-        if(cursor.moveToFirst()){ rating = cursor.getFloat(0); }
+        if (cursor.moveToFirst()) {
+            rating = cursor.getFloat(0);
+        }
         cursor.close();
-        db.close();
         return rating;
     }
 
@@ -114,7 +114,6 @@ public class DBHelper extends SQLiteOpenHelper {
             ));
         }
         cursor.close();
-        db.close();
         return allBooks;
     }
 
@@ -132,7 +131,6 @@ public class DBHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
         db.delete(TABLE_BOOKS, COLUMN_API_ID + " = ?",
                 new String[]{ String.valueOf(api_id) });
-        db.close();
     }
 
 

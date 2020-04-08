@@ -10,7 +10,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
@@ -29,7 +28,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import ca.andrewmcneill.chroniclelist.Helpers.DBHelper;
-import ca.andrewmcneill.chroniclelist.ItemListActivity;
 import ca.andrewmcneill.chroniclelist.R;
 import ca.andrewmcneill.chroniclelist.beans.Book;
 import fr.arnaudguyon.xmltojsonlib.XmlToJson;
@@ -55,9 +53,12 @@ public class DetailBookFragment extends Fragment{
     private TextView tAuthor;
     private TextView tTitle;
     private TextView tDesc;
-    private TextView tRating;
     private ImageView tCover;
+    private ImageView tSave;
+    private RatingBar tRating;
     private RatingBar tUserRatingBar;
+
+    private static DBHelper db;
 
 
 
@@ -89,6 +90,7 @@ public class DetailBookFragment extends Fragment{
             id = getArguments().getString(BOOK_ID);
             twoPane = getArguments().getBoolean(TWO_PANE);
         }
+        db = new DBHelper(getContext());
     }
 
     @Override
@@ -102,15 +104,14 @@ public class DetailBookFragment extends Fragment{
         tDesc = view.findViewById(R.id.book_desc);
         tRating =  view.findViewById(R.id.book_rating);
         tCover = view.findViewById(R.id.book_detail_image);
-        tUserRatingBar = view.findViewById(R.id.userRating);
+        tUserRatingBar = view.findViewById(R.id.user_rating);
         tUserRatingBar.setOnRatingBarChangeListener(new RatingBar.OnRatingBarChangeListener() {
             @Override
             public void onRatingChanged(RatingBar ratingBar, float v, boolean b) {
                 if (b) {
-                    DBHelper db = new DBHelper(getContext());
                     db.addBook(tBook);
                     db.updateBookRating(tBook, v);
-                    Log.d("STRING IMAGE URL", tBook.getCoverUrl());
+
                     if (PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean("enable_toast", true)) {
                         Snackbar.make(view, "Book and Rating Saved!", Snackbar.LENGTH_LONG)
                                 .setAction("Action", null).show();
@@ -118,6 +119,13 @@ public class DetailBookFragment extends Fragment{
                     customAdapter.update();
                 }
 
+            }
+        });
+        tSave = view.findViewById(R.id.save_book);
+        tSave.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //TODO: Add to DB favourite book column to keep use this (out of scope for this branch)?
             }
         });
         getBook();
@@ -177,13 +185,12 @@ public class DetailBookFragment extends Fragment{
     }
 
     private void inflateBook(Book book) {
-        DBHelper db = new DBHelper(getContext());
         float userRating = db.getUserRating(book.getApiID());
-        db.close();
+        //db.close();
         tTitle.setText(book.getTitle());
         tAuthor.setText(book.getAuthor());
         tDesc.setText(book.getDescription());
-        tRating.setText(Double.toString(book.getRating()));
+        tRating.setRating((float) book.getRating());
         tUserRatingBar.setRating(userRating);
         Picasso.get().load(book.getCoverUrl()).into(tCover);
     }
