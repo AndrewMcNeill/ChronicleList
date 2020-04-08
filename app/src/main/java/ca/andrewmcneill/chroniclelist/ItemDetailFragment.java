@@ -1,6 +1,8 @@
 package ca.andrewmcneill.chroniclelist;
 
 import android.app.Activity;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import com.android.volley.Request;
@@ -10,6 +12,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
+import com.google.android.material.snackbar.Snackbar;
 
 import androidx.fragment.app.Fragment;
 import androidx.preference.PreferenceManager;
@@ -30,6 +33,7 @@ import java.util.ArrayList;
 import ca.andrewmcneill.chroniclelist.adapters.SeriesPagerAdapter;
 import ca.andrewmcneill.chroniclelist.beans.Book;
 import ca.andrewmcneill.chroniclelist.fragments.DetailBookFragment;
+import ca.andrewmcneill.chroniclelist.transformers.ZoomOutPageTransformer;
 import fr.arnaudguyon.xmltojsonlib.XmlToJson;
 
 /**
@@ -45,10 +49,13 @@ public class ItemDetailFragment extends Fragment {
 
     private String apiID;
     private boolean twoPane;
-
     private int clickedBook = 0;
-
     private ViewPager detailViewPager;
+
+    private Context context;
+    private Context activityContext;
+    private SeriesPagerAdapter seriesPagerAdapter;
+    private View rootView;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -60,7 +67,12 @@ public class ItemDetailFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        context = getContext();
+        activityContext = getActivity();
 
+        seriesPagerAdapter = new SeriesPagerAdapter(getChildFragmentManager());
+
+        assert getArguments() != null;
         if (getArguments().containsKey(API_ID)) {
             apiID = getArguments().getString(API_ID);
             twoPane = getArguments().getBoolean(TWO_PANE);
@@ -77,17 +89,15 @@ public class ItemDetailFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.book_detail, container, false);
+        rootView = inflater.inflate(R.layout.book_detail, container, false);
         detailViewPager = rootView.findViewById(R.id.detailViewPager);
-
         getClickedBook();
-
         return rootView;
     }
 
     private void getClickedBook() {
 
-        RequestQueue queue = Volley.newRequestQueue(this.getContext());
+        RequestQueue queue = Volley.newRequestQueue(context);
 
         final String url = "https://www.goodreads.com/book/show/"+apiID+".xml?key=";
         final String key = "z1Gl9wmQ9FBFQiLqMSlxA";
@@ -122,7 +132,7 @@ public class ItemDetailFragment extends Fragment {
                             Log.d("Book", "Description: " + book.getDescription());
 
 
-                            if (!PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean("enable_series", true)) {
+                            if (!PreferenceManager.getDefaultSharedPreferences(activityContext).getBoolean("enable_series", true)) {
                                 ArrayList<String> bookIDs = new ArrayList<>();
                                 bookIDs.add(apiID);
                                 populateViewPager(bookIDs);
@@ -165,7 +175,7 @@ public class ItemDetailFragment extends Fragment {
 
     private void getSeries(String seriesID) {
 
-        RequestQueue queue = Volley.newRequestQueue(this.getContext());
+        RequestQueue queue = Volley.newRequestQueue(context);
 
         final String url = "https://www.goodreads.com/series/show/" + seriesID + ".xml?key=";
         final String key = "z1Gl9wmQ9FBFQiLqMSlxA";
@@ -214,10 +224,22 @@ public class ItemDetailFragment extends Fragment {
             bookFragments.add(bookFragment);
         }
         Log.d("Pager", "Setting up viewpager " + clickedBook);
-        detailViewPager.setOffscreenPageLimit(ids.size());
-        SeriesPagerAdapter seriesPagerAdapter = new SeriesPagerAdapter(getChildFragmentManager());
         detailViewPager.setAdapter(seriesPagerAdapter);
+        detailViewPager.setPageTransformer(true, new ZoomOutPageTransformer());
         seriesPagerAdapter.addFragmentsToViewPager(bookFragments);
+        detailViewPager.setOffscreenPageLimit(ids.size());
         detailViewPager.setCurrentItem(clickedBook);
+        if (bookFragments.size() > 1) {
+            final SharedPreferences sharedPreferences = activityContext.getSharedPreferences("tutorial", Context.MODE_PRIVATE);
+            if (!sharedPreferences.getBoolean("dismissedSeries", false)) {
+                Snackbar.make(rootView, "Swipe Left or Right to view other books in the series!", Snackbar.LENGTH_INDEFINITE)
+                        .setAction("DISMISS", new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                sharedPreferences.edit().putBoolean("dismissedSeries", true).apply();
+                            }
+                        }).show();
+            }
+        }
     }
 }
