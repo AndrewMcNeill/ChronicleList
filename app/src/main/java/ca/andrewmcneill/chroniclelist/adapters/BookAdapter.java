@@ -6,6 +6,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -123,12 +124,20 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.ViewHolder> {
         ObjectAnimator translateY = ObjectAnimator.ofFloat(itemView, "translationY", 300f, 0f);
 
         // assign a duration and a delay for each item, increase the delay for each item to make the animation smoother (one loads then the next...)
-        translateY.setStartDelay(position * 250 / 4);
-        translateY.setDuration(250);
-
-        // make alpha and translate animations play together
-        animatorSet.playTogether(translateY, alpha);
-
+        // NOTE: fix for different OS behaving differently for animations (6.0 seems to follow the docs normally, anything higher does some wonky stuff)
+        // if were running 7.0 or higher, use a different set of animation durations to keep the animation the same as < 6.0
+        Log.d("BUILD_VERSION_ANIM", String.valueOf(Build.VERSION.SDK_INT));
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
+            translateY.setStartDelay(position * 250 / 4);
+            alpha.setStartDelay(position * 250 / 4);
+            translateY.setDuration(250);
+            alpha.setDuration(250);
+            animatorSet.playTogether(alpha, translateY);
+        } else {
+            translateY.setStartDelay(position * 250 / 4);
+            translateY.setDuration(250);
+            animatorSet.playTogether(translateY, alpha);
+        }
         // start the animation
         animatorSet.start();
     }
