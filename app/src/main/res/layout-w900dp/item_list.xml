@@ -60,7 +60,8 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:menu="@menu/bottom_nav_menu"
-            android:background="#FFFFFF"
+            android:background="@color/colorPrimary"
+            android:theme="@style/BottomNavStyle"
             />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
