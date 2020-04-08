@@ -19,8 +19,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/item_pane"
         android:layout_width="@dimen/item_width"
-        android:layout_height="match_parent"
-        android:animateLayoutChanges="true">
+        android:layout_height="match_parent">
 
         <EditText
             android:id="@+id/searchBar"
