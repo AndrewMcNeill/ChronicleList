@@ -38,9 +38,10 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String COLUMN_USER_RATING = "user_rating";
     public static final String COLUMN_IMG_URL = "image";
     public static final String COLUMN_API_ID = "api_id";
+    public static final String COLUMN_FAVE = "fave";
 
     public static final String CREATE_BOOK_COLLECTIONS_TABLE = "CREATE TABLE " + TABLE_BOOKS + "(" +  COLUMN_API_ID + " TEXT PRIMARY KEY, "
-            + COLUMN_TITLE + " TEXT, " + COLUMN_AUTHOR + " TEXT, " + COLUMN_RATING + " REAL, " + COLUMN_USER_RATING + " REAL, " + COLUMN_IMG_URL + " TEXT)";
+            + COLUMN_TITLE + " TEXT, " + COLUMN_AUTHOR + " TEXT, " + COLUMN_RATING + " REAL, " + COLUMN_USER_RATING + " REAL, " + COLUMN_IMG_URL + " TEXT, " + COLUMN_FAVE + " INTEGER)";
 
     /*
         Methods
@@ -55,7 +56,7 @@ public class DBHelper extends SQLiteOpenHelper {
         values.put(COLUMN_USER_RATING, 0);
         values.put(COLUMN_IMG_URL, book.getCoverUrl());
         values.put(COLUMN_API_ID, book.getApiID());
-
+        values.put(COLUMN_FAVE, 0);
         db.insert(TABLE_BOOKS, null, values);
     }
 
@@ -86,6 +87,25 @@ public class DBHelper extends SQLiteOpenHelper {
         return book;
     }
 
+    public ArrayList<Book> getAllBooks() {
+        ArrayList<Book> allBooks = new ArrayList<>();
+        SQLiteDatabase db  = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_BOOKS,null);
+        while (cursor.moveToNext()) {
+            allBooks.add(
+                    new Book(
+                            cursor.getString(0),
+                            cursor.getString(1),
+                            cursor.getString(2),
+                            cursor.getInt(3),
+                            cursor.getString(5)
+                    ));
+        }
+        cursor.close();
+        return allBooks;
+    }
+
+
     public float getUserRating(String api_id) {
         float rating = 0;
         SQLiteDatabase db = this.getReadableDatabase();
@@ -99,31 +119,32 @@ public class DBHelper extends SQLiteOpenHelper {
         return rating;
     }
 
-    public ArrayList<Book> getAllBooks() {
-        ArrayList<Book> allBooks = new ArrayList<>();
-        SQLiteDatabase db  = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_BOOKS,null);
-        while (cursor.moveToNext()) {
-            allBooks.add(
-                new Book(
-                    cursor.getString(0),
-                    cursor.getString(1),
-                    cursor.getString(2),
-                    cursor.getInt(3),
-                    cursor.getString(5)
-            ));
-        }
-        cursor.close();
-        return allBooks;
-    }
-
-
     public int updateBookRating(Book book, float rating) {
         SQLiteDatabase db = getWritableDatabase();
         ContentValues v = new ContentValues();
         v.put(COLUMN_USER_RATING, rating); // change to use user rating instead of goodreads rating
         return db.update(TABLE_BOOKS, v, COLUMN_API_ID + "=?",
                 new String[]{String.valueOf( book.getApiID() )});
+    }
+
+    public int isFavourte(String api_id) {
+        int isFavourite = 0;
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(TABLE_BOOKS, new String[]{COLUMN_FAVE}, COLUMN_API_ID + "= ?",
+                new String[]{String.valueOf(api_id)}, null, null, null);
+
+        if (cursor.moveToFirst()) {
+            isFavourite = cursor.getInt(0);
+        }
+        return isFavourite;
+    }
+
+    public int updateFavourite(String api_id, int i) {
+        SQLiteDatabase db = getWritableDatabase();
+        ContentValues v = new ContentValues();
+        v.put(COLUMN_FAVE, i); // change to use user rating instead of goodreads rating
+        return db.update(TABLE_BOOKS, v, COLUMN_API_ID + "=?",
+                new String[]{String.valueOf(api_id)});
     }
 
 

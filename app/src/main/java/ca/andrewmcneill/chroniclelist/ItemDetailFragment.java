@@ -2,6 +2,7 @@ package ca.andrewmcneill.chroniclelist;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import com.android.volley.Request;
@@ -11,6 +12,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
+import com.google.android.material.snackbar.Snackbar;
 
 import androidx.fragment.app.Fragment;
 import androidx.preference.PreferenceManager;
@@ -53,6 +55,7 @@ public class ItemDetailFragment extends Fragment {
     private Context context;
     private Context activityContext;
     private SeriesPagerAdapter seriesPagerAdapter;
+    private View rootView;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -86,7 +89,7 @@ public class ItemDetailFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.book_detail, container, false);
+        rootView = inflater.inflate(R.layout.book_detail, container, false);
         detailViewPager = rootView.findViewById(R.id.detailViewPager);
         getClickedBook();
         return rootView;
@@ -226,5 +229,17 @@ public class ItemDetailFragment extends Fragment {
         seriesPagerAdapter.addFragmentsToViewPager(bookFragments);
         detailViewPager.setOffscreenPageLimit(ids.size());
         detailViewPager.setCurrentItem(clickedBook);
+        if (bookFragments.size() > 1) {
+            final SharedPreferences sharedPreferences = activityContext.getSharedPreferences("tutorial", Context.MODE_PRIVATE);
+            if (!sharedPreferences.getBoolean("dismissedSeries", false)) {
+                Snackbar.make(rootView, "Swipe Left or Right to view other books in the series!", Snackbar.LENGTH_INDEFINITE)
+                        .setAction("DISMISS", new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                sharedPreferences.edit().putBoolean("dismissedSeries", true).apply();
+                            }
+                        }).show();
+            }
+        }
     }
 }

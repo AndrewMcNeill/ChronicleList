@@ -111,21 +111,33 @@ public class DetailBookFragment extends Fragment{
                 if (b) {
                     db.addBook(tBook);
                     db.updateBookRating(tBook, v);
-
                     if (PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean("enable_toast", true)) {
                         Snackbar.make(view, "Book and Rating Saved!", Snackbar.LENGTH_LONG)
                                 .setAction("Action", null).show();
                     }
-                    customAdapter.update();
                 }
 
             }
         });
         tSave = view.findViewById(R.id.save_book);
+
         tSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //TODO: Add to DB favourite book column to keep use this (out of scope for this branch)?
+                int isFavourite = db.isFavourte(tBook.getApiID());
+                if (isFavourite == 1) {
+                    db.deleteBook(tBook.getApiID());
+                    tSave.setImageResource(R.drawable.ic_favorite_border_black_24dp);
+                    Snackbar.make(view, "Book un-liked and Removed!", Snackbar.LENGTH_LONG)
+                            .setAction("Action", null).show();
+
+                } else {
+                    db.addBook(tBook);
+                    db.updateFavourite(tBook.getApiID(), 1);
+                    tSave.setImageResource(R.drawable.ic_favorite_black_24dp);
+                    Snackbar.make(view, "Book liked!", Snackbar.LENGTH_LONG)
+                            .setAction("Action", null).show();
+                }
             }
         });
         getBook();
@@ -165,8 +177,8 @@ public class DetailBookFragment extends Fragment{
                                     jsonBook.getString("image_url"),
                                     description
                             );
-                            inflateBook(book);
                             tBook = book;
+                            inflateBook(book);
                         } catch (JSONException e) {
                             Log.d("Book", e.toString());
                             e.printStackTrace();
@@ -193,6 +205,11 @@ public class DetailBookFragment extends Fragment{
         tRating.setRating((float) book.getRating());
         tUserRatingBar.setRating(userRating);
         Picasso.get().load(book.getCoverUrl()).into(tCover);
+        final int isFavourite = db.isFavourte(book.getApiID());
+        if (isFavourite == 1) {
+            tSave.setImageResource(R.drawable.ic_favorite_black_24dp);
+        }
+
     }
 
 
