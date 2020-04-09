@@ -1,6 +1,8 @@
 package ca.andrewmcneill.chroniclelist.fragments;
 
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -140,6 +142,21 @@ public class DetailBookFragment extends Fragment{
                 }
             }
         });
+
+        ImageView shareButton = view.findViewById(R.id.tweet_button);
+        shareButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String tweet = "https://twitter.com/intent/tweet?text=";
+                tweet = tweet + tTitle.getText().toString() + " by " + tAuthor.getText().toString() + " is <opinion>!";
+                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(tweet));
+                if (intent.resolveActivity(getContext().getPackageManager()) != null) {
+                    startActivity(intent);
+                }
+            }
+        });
+
+
         getBook();
         return view;
     }
