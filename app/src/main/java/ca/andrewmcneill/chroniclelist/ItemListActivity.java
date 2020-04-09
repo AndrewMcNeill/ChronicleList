@@ -44,7 +44,6 @@ import fr.arnaudguyon.xmltojsonlib.XmlToJson;
 import java.util.ArrayList;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.util.Random;
 
 /**
  * An activity representing a list of Items. This activity
@@ -151,8 +150,11 @@ public class ItemListActivity extends AppCompatActivity implements SharedPrefere
         switch (item.getItemId()) {
             case R.id.settings:
                 Intent i = new Intent(this, SettingsActivity.class);
-
                 startActivity(i);
+                return true;
+            case R.id.credits:
+                Intent j = new Intent(this, CreditsActivity.class);
+                startActivity(j);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

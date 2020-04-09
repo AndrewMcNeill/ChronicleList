@@ -20,4 +20,21 @@
     <string name="attachment_summary_on">Automatically download attachments for incoming emails
     </string>
     <string name="attachment_summary_off">Only download attachments when manually requested</string>
+
+    <string name="about_content">Attributions</string>
+    <string name="xml_json_credit">Copyright 2016-2019 Arnaud Guyon https://github.com/smart-fun/XmlToJson</string>
+    <string name="goodreads_api">
+        https://www.goodreads.com/api
+    </string>
+    <string name="pager_transformer">
+        https://developer.android.com/training/animation/screen-slide
+    </string>
+    <string name="picasso_api">
+        Picasso API
+    </string>
+    <string name="picasso_credit">
+        Copyright 2013 Square, Inc. https://square.github.io/picasso/
+    </string>
+
+    <string name="title_activity_credits">About ChronicleList</string>
 </resources>
