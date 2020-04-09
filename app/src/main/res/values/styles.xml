@@ -17,4 +17,16 @@
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
+    <style name="BottomNavStyle">
+        <item name="itemTextAppearanceActive">@style/Active</item>
+        <item name="itemTextAppearanceInactive">@style/Inactive</item>
+    </style>
+
+    <style name="Active">
+        <item name="android:textColor">@color/colorActive</item>
+    </style>
+    <style name="Inactive">
+        <item name="android:textColor">@color/colorInactive</item>
+    </style>
+
 </resources>
