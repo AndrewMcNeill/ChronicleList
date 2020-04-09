@@ -51,6 +51,7 @@ public class DetailBookFragment extends Fragment{
     private String id;
     private boolean twoPane;
     private Book tBook;
+    private String webpage;
 
     private TextView tAuthor;
     private TextView tTitle;
@@ -147,6 +148,8 @@ public class DetailBookFragment extends Fragment{
         shareButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if (tBook == null)
+                    return;
                 String tweet = "https://twitter.com/intent/tweet?text=";
                 tweet = tweet + tTitle.getText().toString() + " by " + tAuthor.getText().toString() + " is <opinion>!";
                 Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(tweet));
@@ -155,6 +158,21 @@ public class DetailBookFragment extends Fragment{
                 }
             }
         });
+
+        ImageView webButton = view.findViewById(R.id.web_button);
+        webButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (tBook == null)
+                    return;
+                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(webpage));
+                if (intent.resolveActivity(getContext().getPackageManager()) != null) {
+                    startActivity(intent);
+                }
+            }
+        });
+
+
 
 
         getBook();
@@ -196,6 +214,7 @@ public class DetailBookFragment extends Fragment{
                             );
                             tBook = book;
                             inflateBook(book);
+                            webpage = jsonBook.getString("url");
                         } catch (JSONException e) {
                             Log.d("Book", e.toString());
                             e.printStackTrace();
