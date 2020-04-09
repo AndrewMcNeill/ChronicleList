@@ -109,7 +109,7 @@ public class ItemDetailFragment extends Fragment {
                         JSONObject jsonObject = xmlToJson.toJson();
                         try {
                             JSONObject jsonBook = jsonObject.getJSONObject("GoodreadsResponse").getJSONObject("book");
-                            String author = "Shit, this didn't work.";
+                            String author = "";
                             Object authorObject = jsonBook.getJSONObject("authors").get("author");
                             if (authorObject instanceof JSONObject)
                                 author = ((JSONObject) authorObject).getString("name");
@@ -128,7 +128,7 @@ public class ItemDetailFragment extends Fragment {
                                     jsonBook.getDouble("average_rating"),
                                     jsonBook.getString("image_url"),
                                     description
-                                    );
+                            );
                             Log.d("Book", "Description: " + book.getDescription());
 
 
