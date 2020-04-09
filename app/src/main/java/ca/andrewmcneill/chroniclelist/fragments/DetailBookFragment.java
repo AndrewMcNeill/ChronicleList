@@ -100,7 +100,7 @@ public class DetailBookFragment extends Fragment{
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // determine if user is in tablet or phone layout
-        int layout = twoPane ? R.layout.fragment_detail_book_tablet : R.layout.fragment_detail_book_phone;
+        int layout = R.layout.fragment_detail_book_phone;
         final View view = inflater.inflate(layout, container, false);
         tAuthor = view.findViewById(R.id.book_author);
         tTitle = view.findViewById(R.id.book_title);
